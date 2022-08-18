@@ -10,12 +10,14 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
+#include "Bolas.h"
 
 #define RES_WIDTH 800
 #define RES_HEIGHT 960
 #define FPS 60.0
 #define KEY_SEEN 1
 #define KEY_RELEASED 2
+#define RAIO 10
 
 // Estados
 enum STATES
@@ -38,9 +40,11 @@ int main(int argc, char const *argv[])
     bool redraw = true;
     bool fimDoGame = false;
     bool tocandoMusicaMenu = true;
+    bool atirouBola = false;
+    bool clickPlay = false;
     int estadoAtual = MENU;
-    double posX;
-    double posY;
+    double mouseX;
+    double mouseY;
 
     // Allegro variables
     must_init(al_init(), "Allegro");
@@ -85,6 +89,10 @@ int main(int argc, char const *argv[])
     ALLEGRO_SAMPLE_ID menuSongId;
     must_init(menuSong, "pianoLoop");
 
+    Lista *lista = criaLista();
+    for (int i = 0; i < 5; i++)
+        insereFinalDaLista(lista);
+
     // Register event source;
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
@@ -114,20 +122,46 @@ int main(int argc, char const *argv[])
             break;
 
         case ALLEGRO_EVENT_MOUSE_AXES:
-            posX = ev.mouse.x;
-            posY = ev.mouse.y;
+            mouseX = ev.mouse.x;
+            mouseY = ev.mouse.y;
             break;
 
         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-            if ((posX >= 255) && (posX <= 545) && (posY >= 450) && (posY <= 520) && (estadoAtual == MENU))
-                estadoAtual = PLAYING;
-            if ((posX >= 255) && (posX <= 545) && (posY >= 560) && (posY <= 630) && (estadoAtual == MENU))
-                estadoAtual = SCORES;
+            if ((ev.mouse.button & 1) && (estadoAtual == PLAYING) && (atirouBola == false) && (clickPlay == true))
+            {
+                atirouBola = true;
+                clickPlay = false;
+                atiraBolas(lista, mouseX, mouseY);
+            }
 
-            if ((posX >= 255) && (posX <= 545) && (posY >= 460) && (posY <= 530) && (estadoAtual == GAMEOVER))
+            if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 450) && (mouseY <= 520) && (estadoAtual == MENU))
+            {
                 estadoAtual = PLAYING;
-            if ((posX >= 255) && (posX <= 545) && (posY >= 570) && (posY <= 640) && (estadoAtual == GAMEOVER))
+                clickPlay = true;
+            }
+
+            if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 560) && (mouseY <= 630) && (estadoAtual == MENU))
+            {
+                estadoAtual = SCORES;
+            }
+
+            if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 460) && (mouseY <= 530) && (estadoAtual == GAMEOVER))
+            {
+                liberaLista(lista);
+                Lista *lista = criaLista();
+                for (int i = 0; i < 5; i++)
+                    insereFinalDaLista(lista);
+
+                atirouBola = false;
+                clickPlay = true;
+                estadoAtual = PLAYING;
+            }
+
+            if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 570) && (mouseY <= 640) && (estadoAtual == GAMEOVER))
+            {
                 estadoAtual = MENU;
+            }
+
             break;
 
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -157,6 +191,10 @@ int main(int argc, char const *argv[])
                         al_stop_sample(&menuSongId);
                         tocandoMusicaMenu = false;
                     }
+
+                    updateBolas(lista);
+                    colisaoBolas(lista, &atirouBola);
+
                     if (key[ALLEGRO_KEY_ESCAPE])
                         estadoAtual = GAMEOVER;
                     break;
@@ -184,11 +222,10 @@ int main(int argc, char const *argv[])
         {
             redraw = false;
 
-            // al_draw_filled_circle(posX, posY, 2, al_map_rgb(255, 0, 0));
             switch (estadoAtual)
             {
             case MENU:
-                al_draw_textf(font32, al_map_rgb(255, 255, 255), 20, 20, 0, "Pos x: %.2f Pos y: %.2f", posX, posY);
+                al_draw_textf(font32, al_map_rgb(255, 255, 255), 20, 20, 0, "Pos x: %.2f Pos y: %.2f", mouseX, mouseY);
                 al_draw_text(font140, al_map_rgba(235, 34, 95, 255), 272, 150, 0, "B");
                 al_draw_text(font140, al_map_rgba(249, 181, 49, 255), 343, 149, 0, "a");
                 al_draw_text(font140, al_map_rgba(22, 114, 190, 255), 414, 151, 0, "l");
@@ -201,7 +238,17 @@ int main(int argc, char const *argv[])
                 break;
 
             case PLAYING:
-                al_draw_text(font32, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2, ALLEGRO_ALIGN_CENTRE, "Press ESC to end");
+                // al_draw_text(font32, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2, ALLEGRO_ALIGN_CENTRE, "Press ESC to end");
+
+                if (atirouBola == false)
+                {
+                    al_draw_filled_circle(lista->ponteiroInicio->bola.posX, lista->ponteiroInicio->bola.posY - 2 * RAIO, RAIO, al_map_rgb(255, 0, 50));
+                    al_draw_line(lista->ponteiroInicio->bola.posX, lista->ponteiroInicio->bola.posY - 3 * RAIO, mouseX, mouseY, al_map_rgb(255, 255, 255), 1);
+                }
+                else
+                {
+                    drawBolas(lista);
+                }
                 break;
 
             case GAMEOVER:
@@ -224,6 +271,7 @@ int main(int argc, char const *argv[])
         }
     }
 
+    liberaLista(lista);
     al_destroy_sample(menuSong);
     al_destroy_font(font32);
     al_destroy_font(font40);

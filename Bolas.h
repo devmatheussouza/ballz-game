@@ -2,21 +2,24 @@
 
 typedef struct
 {
-   int posX;
-   int posY;
+   bool viva;
+   double posX;
+   double posY;
    int boundX;
    int boundY;
    double speedX;
    double speedY;
    bool bolaReferencia; // primeira bola a chegar no final da tela;
+   bool shooted;
 } Bola;
 
-typedef struct
+struct Elemento
 {
-   ElementoDaLista *anterior;
+   struct Elemento *anterior;
    Bola bola;
-   ElementoDaLista *proximo;
-} ElementoDaLista;
+   struct Elemento *proximo;
+};
+typedef struct Elemento ElementoDaLista;
 
 typedef struct
 {
@@ -27,5 +30,9 @@ Lista *criaLista();
 void liberaLista(Lista *lista);
 int tamanhoDaLista(Lista *lista);
 bool listaVazia(Lista *lista);
-bool insereFinalDaLista(Lista *lista, Bola bola);
-void inicializaLista(Lista *lista);
+bool insereFinalDaLista(Lista *lista);
+Bola criaBola();
+void drawBolas(Lista *lista);
+void updateBolas(Lista *lista);
+void colisaoBolas(Lista *lista, bool *atirouBola);
+void atiraBolas(Lista *lista, double x_mouse, double y_mouse);

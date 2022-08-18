@@ -1,21 +1,18 @@
-    PROGS = Ballz
-
-   	ALLEGRO = -lallegro_image -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font -lallegro_acodec -lallegro_audio -lallegro
-	
-    CFLAGS = -I.
-    LFLAGS = $(ALLEGRO)
-
-    CC = gcc -std=c99 -Wall
+CC = gcc -std=c99 -Wall
+PROGS = Ballz
+ALLEGRO = -lallegro_image -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font -lallegro_acodec -lallegro_audio -lallegro
+CFLAGS = -I.
+LFLAGS = $(ALLEGRO)
 
 %.o:  %.c
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c -lm $<
 
 debug: CFLAGS += -g -D__DEBUG__
 
 all debug: $(PROGS)
 
-$(PROGS) : % : %.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
+$(PROGS) : % : %.o Bolas.o
+	$(CC) $(CFLAGS) -o  $@ $^ $(LFLAGS) -lm
 
 clean:
 	@echo "Limpando sujeira ..."
