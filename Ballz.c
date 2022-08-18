@@ -28,6 +28,18 @@ enum STATES
     SCORES
 };
 
+double tempoInicial = 0;
+
+void iniciarTimer()
+{
+    tempoInicial = al_get_time();
+}
+
+double obterTempoTimer()
+{
+    return al_get_time() - tempoInicial;
+}
+
 // Prototipos das funcoes
 void must_init(bool test, const char *description);
 int numAleatorio(int n, int m);
@@ -43,8 +55,12 @@ int main(int argc, char const *argv[])
     bool atirouBola = false;
     bool clickPlay = false;
     int estadoAtual = MENU;
+    int scoreAtual = 0;
     double mouseX;
     double mouseY;
+
+    int frame = 0;
+    bool limitado = true;
 
     // Allegro variables
     must_init(al_init(), "Allegro");
@@ -71,7 +87,7 @@ int main(int argc, char const *argv[])
     must_init(al_install_keyboard(), "Keyboard");
     must_init(al_install_mouse(), "Mouse");
     al_set_window_title(display, "BALLZ");
-    font32 = al_load_font("./fonts/static/Rubik-Medium.ttf", 32, 0);
+    font32 = al_load_font("./fonts/creHappiness.ttf", 32, 0);
     font40 = al_load_font("./fonts/creHappiness.ttf", 40, 0);
     font60 = al_load_font("./fonts/creHappiness.ttf", 60, 0);
     font80 = al_load_font("./fonts/creHappiness.ttf", 80, 0);
@@ -85,7 +101,7 @@ int main(int argc, char const *argv[])
     must_init(al_init_acodec_addon(), "audio codecs");
     must_init(al_reserve_samples(16), "reserve samples");
 
-    ALLEGRO_SAMPLE *menuSong = al_load_sample("menuSong.wav");
+    ALLEGRO_SAMPLE *menuSong = al_load_sample("./audio/menuSong.wav");
     ALLEGRO_SAMPLE_ID menuSongId;
     must_init(menuSong, "pianoLoop");
 
@@ -134,27 +150,26 @@ int main(int argc, char const *argv[])
                 atiraBolas(lista, mouseX, mouseY);
             }
 
-            if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 450) && (mouseY <= 520) && (estadoAtual == MENU))
+            if (((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 450) && (mouseY <= 520) && (estadoAtual == MENU)) ||
+                ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 460) && (mouseY <= 530) && (estadoAtual == GAMEOVER)))
             {
-                estadoAtual = PLAYING;
-                clickPlay = true;
+                if (lista != NULL)
+                {
+                    liberaLista(lista);
+                    Lista *lista = criaLista();
+                    for (int i = 0; i < 5; i++)
+                        insereFinalDaLista(lista);
+
+                    atirouBola = false;
+                    estadoAtual = PLAYING;
+                    clickPlay = true;
+                    scoreAtual = 0;
+                }
             }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 560) && (mouseY <= 630) && (estadoAtual == MENU))
             {
                 estadoAtual = SCORES;
-            }
-
-            if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 460) && (mouseY <= 530) && (estadoAtual == GAMEOVER))
-            {
-                liberaLista(lista);
-                Lista *lista = criaLista();
-                for (int i = 0; i < 5; i++)
-                    insereFinalDaLista(lista);
-
-                atirouBola = false;
-                clickPlay = true;
-                estadoAtual = PLAYING;
             }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 570) && (mouseY <= 640) && (estadoAtual == GAMEOVER))
@@ -238,7 +253,7 @@ int main(int argc, char const *argv[])
                 break;
 
             case PLAYING:
-                // al_draw_text(font32, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2, ALLEGRO_ALIGN_CENTRE, "Press ESC to end");
+                al_draw_textf(font32, al_map_rgb(255, 255, 255), 10, 15, 0, "Score: %d", scoreAtual);
 
                 if (atirouBola == false)
                 {
@@ -252,7 +267,7 @@ int main(int argc, char const *argv[])
                 break;
 
             case GAMEOVER:
-                al_draw_text(font80, al_map_rgb(249, 181, 49), RES_WIDTH / 2, RES_HEIGHT / 2 - 220, ALLEGRO_ALIGN_CENTRE, "20");
+                al_draw_textf(font80, al_map_rgb(249, 181, 49), RES_WIDTH / 2, RES_HEIGHT / 2 - 220, ALLEGRO_ALIGN_CENTRE, "%d", scoreAtual);
                 al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 150, ALLEGRO_ALIGN_CENTRE, "BEST 80");
                 al_draw_filled_rounded_rectangle(250, 460, 550, 530, 35, 35, al_map_rgba(234, 35, 95, 255));
                 al_draw_filled_rounded_rectangle(250, 570, 550, 640, 35, 35, al_map_rgba(22, 117, 187, 255));
@@ -268,10 +283,17 @@ int main(int argc, char const *argv[])
 
             al_flip_display();
             al_clear_to_color(al_map_rgb(0, 0, 0));
+            frame++;
+
+            if (limitado && (obterTempoTimer() < 1.0 / FPS))
+            {
+                al_rest((1.0 / FPS) - obterTempoTimer());
+            }
         }
     }
 
-    liberaLista(lista);
+    if (lista != NULL)
+        liberaLista(lista);
     al_destroy_sample(menuSong);
     al_destroy_font(font32);
     al_destroy_font(font40);
