@@ -25,7 +25,8 @@ enum STATES
     MENU = 1,
     PLAYING,
     GAMEOVER,
-    SCORES
+    SCORES,
+    PAUSE
 };
 
 double tempoInicial = 0;
@@ -151,7 +152,8 @@ int main(int argc, char const *argv[])
             }
 
             if (((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 450) && (mouseY <= 520) && (estadoAtual == MENU)) ||
-                ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 460) && (mouseY <= 530) && (estadoAtual == GAMEOVER)))
+                ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 460) && (mouseY <= 530) && (estadoAtual == GAMEOVER)) ||
+                ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 470) && (mouseY <= 540) && (estadoAtual == PAUSE)))
             {
                 if (lista != NULL)
                 {
@@ -173,6 +175,16 @@ int main(int argc, char const *argv[])
             }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 570) && (mouseY <= 640) && (estadoAtual == GAMEOVER))
+            {
+                estadoAtual = MENU;
+            }
+
+            if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 360) && (mouseY <= 430) && (estadoAtual == PAUSE))
+            {
+                estadoAtual = PLAYING;
+            }
+
+            if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 580) && (mouseY <= 650) && (estadoAtual == PAUSE))
             {
                 estadoAtual = MENU;
             }
@@ -211,7 +223,12 @@ int main(int argc, char const *argv[])
                     colisaoBolas(lista, &atirouBola);
 
                     if (key[ALLEGRO_KEY_ESCAPE])
-                        estadoAtual = GAMEOVER;
+                        estadoAtual = PAUSE;
+                    break;
+
+                case PAUSE:
+                    if (key[ALLEGRO_KEY_ENTER])
+                        estadoAtual = PLAYING;
                     break;
 
                 case GAMEOVER:
@@ -264,6 +281,16 @@ int main(int argc, char const *argv[])
                 {
                     drawBolas(lista);
                 }
+                break;
+
+            case PAUSE:
+                al_draw_text(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 220, ALLEGRO_ALIGN_CENTRE, "PAUSE");
+                al_draw_filled_rounded_rectangle(250, 360, 550, 430, 35, 35, al_map_rgba(234, 35, 95, 255));
+                al_draw_filled_rounded_rectangle(250, 470, 550, 540, 35, 35, al_map_rgba(249, 151, 49, 255));
+                al_draw_filled_rounded_rectangle(250, 580, 550, 650, 35, 35, al_map_rgba(0, 164, 149, 255));
+                al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 378, ALLEGRO_ALIGN_CENTRE, "RESUME");
+                al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 488, ALLEGRO_ALIGN_CENTRE, "REPLAY");
+                al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 598, ALLEGRO_ALIGN_CENTRE, "MAIN MENU");
                 break;
 
             case GAMEOVER:
