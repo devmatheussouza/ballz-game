@@ -57,6 +57,7 @@ int main(int argc, char const *argv[])
     bool clickDesativarMusicaMenu = false;
     bool atirouBola = false;
     bool clickPlay = false;
+    bool descerBloco = false;
     int estadoAtual = MENU;
     int scoreAtual = 0;
     double mouseX;
@@ -162,6 +163,7 @@ int main(int argc, char const *argv[])
                 atirouBola = true;
                 clickPlay = false;
                 atiraBolas(listaBolas, mouseX, mouseY);
+                descerBloco = true;
             }
 
             if (((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 450) && (mouseY <= 520) && (estadoAtual == MENU)) ||
@@ -185,6 +187,7 @@ int main(int argc, char const *argv[])
                     liberaListaBlocos(listaBlocos);
                     ListaBlocos *listaBlocos = criaListaBlocos();
                     numeroDalinha = 0;
+                    descerBloco = false;
                     preencheLinhaBlocos(listaBlocos, &numeroDalinha);
 
                     atirouBola = false;
@@ -263,8 +266,9 @@ int main(int argc, char const *argv[])
 
                             liberaListaBlocos(listaBlocos);
                             ListaBlocos *listaBlocos = criaListaBlocos();
-                            preencheLinhaBlocos(listaBlocos, &numeroDalinha);
                             numeroDalinha = 0;
+                            descerBloco = false;
+                            preencheLinhaBlocos(listaBlocos, &numeroDalinha);
 
                             atirouBola = false;
                             estadoAtual = PLAYING;
@@ -277,6 +281,7 @@ int main(int argc, char const *argv[])
                 case PLAYING:
                     colisaoBolas(listaBolas, &atirouBola);
                     updateBolas(listaBolas);
+                    updateBlocos(listaBlocos, &descerBloco, &atirouBola, &numeroDalinha);
 
                     if (key[ALLEGRO_KEY_ESCAPE])
                         estadoAtual = PAUSE;

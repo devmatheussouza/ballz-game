@@ -156,7 +156,7 @@ void colisaoBolas(ListaBolas *lista, bool *atirouBola)
    {
       if (aux->bola.viva == true)
       {
-         if ((aux->bola.posX > RES_WIDTH - 5) || (aux->bola.posX < 5))
+         if ((aux->bola.posX > RES_WIDTH - 2 * RAIO) || (aux->bola.posX < 5))
          {
             aux->bola.speedX *= -1;
          }
@@ -166,7 +166,7 @@ void colisaoBolas(ListaBolas *lista, bool *atirouBola)
             aux->bola.speedY *= -1;
          }
 
-         if ((aux->bola.posY > RES_HEIGHT - 5))
+         if ((aux->bola.posY > RES_HEIGHT - 2 * RAIO))
          {
             aux->bola.speedY = 0;
             aux->bola.speedX = 0;

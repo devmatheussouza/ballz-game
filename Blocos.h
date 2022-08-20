@@ -32,3 +32,4 @@ bool listaVaziaBlocos(ListaBlocos *lista);
 void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha);
 bool insereFinalDaListaBlocos(ListaBlocos *lista, Blocos bloco);
 void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *font);
+void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *numeroDaLinha);
