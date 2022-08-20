@@ -11,6 +11,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include "Bolas.h"
+#include "Blocos.h"
 
 #define RES_WIDTH 800
 #define RES_HEIGHT 960
@@ -18,6 +19,7 @@
 #define KEY_SEEN 1
 #define KEY_RELEASED 2
 #define RAIO 8
+#define INCREMENT_HEIGHT 70
 
 // Estados
 enum STATES
@@ -43,7 +45,6 @@ double obterTempoTimer()
 
 // Prototipos das funcoes
 void must_init(bool test, const char *description);
-int numAleatorio(int n, int m);
 
 // Inicio MAIN
 int main(int argc, char const *argv[])
@@ -60,6 +61,7 @@ int main(int argc, char const *argv[])
     int scoreAtual = 0;
     double mouseX;
     double mouseY;
+    int numeroDalinha = 0;
 
     int frame = 0;
     bool limitado = true;
@@ -72,6 +74,7 @@ int main(int argc, char const *argv[])
     ALLEGRO_DISPLAY *display = al_create_display(RES_WIDTH, RES_HEIGHT);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
+    ALLEGRO_FONT *font28 = NULL;
     ALLEGRO_FONT *font32 = NULL;
     ALLEGRO_FONT *font40 = NULL;
     ALLEGRO_FONT *font60 = NULL;
@@ -92,11 +95,13 @@ int main(int argc, char const *argv[])
     al_set_window_title(display, "BALLZ");
     nota_musical = al_load_bitmap("./images/nota-musical.png");
     al_convert_mask_to_alpha(nota_musical, al_map_rgb(255, 0, 255));
+    font28 = al_load_font("./fonts/creHappiness.ttf", 28, 0);
     font32 = al_load_font("./fonts/creHappiness.ttf", 32, 0);
     font40 = al_load_font("./fonts/creHappiness.ttf", 40, 0);
     font60 = al_load_font("./fonts/creHappiness.ttf", 60, 0);
     font80 = al_load_font("./fonts/creHappiness.ttf", 80, 0);
     font140 = al_load_font("./fonts/creHappiness.ttf", 140, 0);
+    must_init(font28, "Font 20");
     must_init(font32, "Font 32");
     must_init(font40, "Font 40");
     must_init(font60, "Font 60");
@@ -110,9 +115,12 @@ int main(int argc, char const *argv[])
     ALLEGRO_SAMPLE_ID menuSongId;
     must_init(menuSong, "pianoLoop");
 
-    Lista *lista = criaLista();
+    ListaBolas *listaBolas = criaListaBolas();
     for (int i = 0; i < 5; i++)
-        insereFinalDaLista(lista);
+        insereFinalDaListaBolas(listaBolas);
+
+    ListaBlocos *listaBlocos = criaListaBlocos();
+    preencheLinhaBlocos(listaBlocos, &numeroDalinha);
 
     // Register event source;
     al_register_event_source(event_queue, al_get_display_event_source(display));
@@ -153,7 +161,7 @@ int main(int argc, char const *argv[])
             {
                 atirouBola = true;
                 clickPlay = false;
-                atiraBolas(lista, mouseX, mouseY);
+                atiraBolas(listaBolas, mouseX, mouseY);
             }
 
             if (((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 450) && (mouseY <= 520) && (estadoAtual == MENU)) ||
@@ -167,12 +175,17 @@ int main(int argc, char const *argv[])
                     al_stop_sample(&menuSongId);
                 }
 
-                if (lista != NULL)
+                if (listaBolas != NULL)
                 {
-                    liberaLista(lista);
-                    Lista *lista = criaLista();
+                    liberaListaBolas(listaBolas);
+                    ListaBolas *listaBolas = criaListaBolas();
                     for (int i = 0; i < 5; i++)
-                        insereFinalDaLista(lista);
+                        insereFinalDaListaBolas(listaBolas);
+
+                    liberaListaBlocos(listaBlocos);
+                    ListaBlocos *listaBlocos = criaListaBlocos();
+                    numeroDalinha = 0;
+                    preencheLinhaBlocos(listaBlocos, &numeroDalinha);
 
                     atirouBola = false;
                     estadoAtual = PLAYING;
@@ -241,12 +254,17 @@ int main(int argc, char const *argv[])
                     if (key[ALLEGRO_KEY_ENTER])
                     {
                         estadoAtual = PLAYING;
-                        if (lista != NULL)
+                        if (listaBolas != NULL)
                         {
-                            liberaLista(lista);
-                            Lista *lista = criaLista();
+                            liberaListaBolas(listaBolas);
+                            ListaBolas *listaBolas = criaListaBolas();
                             for (int i = 0; i < 5; i++)
-                                insereFinalDaLista(lista);
+                                insereFinalDaListaBolas(listaBolas);
+
+                            liberaListaBlocos(listaBlocos);
+                            ListaBlocos *listaBlocos = criaListaBlocos();
+                            preencheLinhaBlocos(listaBlocos, &numeroDalinha);
+                            numeroDalinha = 0;
 
                             atirouBola = false;
                             estadoAtual = PLAYING;
@@ -257,8 +275,8 @@ int main(int argc, char const *argv[])
                     break;
 
                 case PLAYING:
-                    updateBolas(lista);
-                    colisaoBolas(lista, &atirouBola);
+                    colisaoBolas(listaBolas, &atirouBola);
+                    updateBolas(listaBolas);
 
                     if (key[ALLEGRO_KEY_ESCAPE])
                         estadoAtual = PAUSE;
@@ -312,20 +330,20 @@ int main(int argc, char const *argv[])
                 al_draw_bitmap(nota_musical, (RES_WIDTH / 2) - 44, RES_HEIGHT - 240, 0);
                 if (clickDesativarMusicaMenu == true)
                     al_draw_line(360, 718, 445, 802, al_map_rgb(255, 0, 0), 3);
-
                 break;
 
             case PLAYING:
                 al_draw_textf(font32, al_map_rgb(255, 255, 255), 10, 15, 0, "Score: %d", scoreAtual);
-
+                drawBlocos(listaBlocos, font28);
                 if (atirouBola == false)
                 {
-                    al_draw_filled_circle(lista->ponteiroInicio->bola.posX, lista->ponteiroInicio->bola.posY - 2 * RAIO, RAIO, al_map_rgb(255, 0, 50));
-                    al_draw_line(lista->ponteiroInicio->bola.posX, lista->ponteiroInicio->bola.posY - 3 * RAIO, mouseX, mouseY, al_map_rgb(255, 255, 255), 1);
+                    clickPlay = true;
+                    al_draw_filled_circle(listaBolas->ponteiroInicio->bola.posX, listaBolas->ponteiroInicio->bola.posY - 2 * RAIO, RAIO, al_map_rgb(255, 0, 50));
+                    al_draw_line(listaBolas->ponteiroInicio->bola.posX, listaBolas->ponteiroInicio->bola.posY - 3 * RAIO, mouseX, mouseY, al_map_rgb(255, 255, 255), 1);
                 }
                 else
                 {
-                    drawBolas(lista);
+                    drawBolas(listaBolas);
                 }
                 break;
 
@@ -365,10 +383,15 @@ int main(int argc, char const *argv[])
         }
     }
 
-    if (lista != NULL)
-        liberaLista(lista);
+    if (listaBolas != NULL)
+        liberaListaBolas(listaBolas);
+
+    if (listaBlocos != NULL)
+        liberaListaBlocos(listaBlocos);
+
     al_destroy_bitmap(nota_musical);
     al_destroy_sample(menuSong);
+    al_destroy_font(font28);
     al_destroy_font(font32);
     al_destroy_font(font40);
     al_destroy_font(font60);
@@ -388,9 +411,4 @@ void must_init(bool test, const char *description)
         return;
     printf("Couldn't initialize %s\n", description);
     exit(1);
-}
-
-int numAleatorio(int n, int m)
-{
-    return (rand() % (m - n + 1)) + n;
 }

@@ -17,17 +17,17 @@
 #define RAIO 8
 #define SPEED 8.0
 
-Lista *criaLista()
+ListaBolas *criaListaBolas()
 {
-   Lista *lista = (Lista *)malloc(sizeof(Lista));
+   ListaBolas *lista = (ListaBolas *)malloc(sizeof(ListaBolas));
    if (lista != NULL)
       lista->ponteiroInicio = NULL;
    return lista;
 }
 
-void liberaLista(Lista *lista)
+void liberaListaBolas(ListaBolas *lista)
 {
-   if (listaVazia(lista))
+   if (listaVaziaBolas(lista))
       free(lista);
 
    ElementoDaLista *nodo_remocao;
@@ -40,7 +40,7 @@ void liberaLista(Lista *lista)
    free(lista);
 }
 
-int tamanhoDaLista(Lista *lista)
+int tamanhoDaListaBolas(ListaBolas *lista)
 {
    if (lista == NULL)
       return 0;
@@ -54,14 +54,14 @@ int tamanhoDaLista(Lista *lista)
    return cont;
 }
 
-bool listaVazia(Lista *lista)
+bool listaVaziaBolas(ListaBolas *lista)
 {
    if (lista->ponteiroInicio == NULL)
       return true;
    return false;
 }
 
-bool insereFinalDaLista(Lista *lista)
+bool insereFinalDaListaBolas(ListaBolas *lista)
 {
    if (lista == NULL)
       return false;
@@ -104,7 +104,7 @@ Bola criaBola()
    return novaBola;
 }
 
-void drawBolas(Lista *lista)
+void drawBolas(ListaBolas *lista)
 {
    ElementoDaLista *aux = lista->ponteiroInicio;
    while (aux != NULL)
@@ -115,7 +115,7 @@ void drawBolas(Lista *lista)
    }
 }
 
-void updateBolas(Lista *lista)
+void updateBolas(ListaBolas *lista)
 {
    ElementoDaLista *aux = lista->ponteiroInicio;
    while (aux != NULL)
@@ -138,6 +138,7 @@ void updateBolas(Lista *lista)
 
             if (aux->bola.shooted == true)
             {
+
                aux->bola.posX += aux->bola.speedX;
                aux->bola.posY += aux->bola.speedY;
             }
@@ -147,8 +148,9 @@ void updateBolas(Lista *lista)
    }
 }
 
-void colisaoBolas(Lista *lista, bool *atirouBola)
+void colisaoBolas(ListaBolas *lista, bool *atirouBola)
 {
+   bool flagBolasTodasMortas = false;
    ElementoDaLista *aux = lista->ponteiroInicio;
    while (aux != NULL)
    {
@@ -166,22 +168,24 @@ void colisaoBolas(Lista *lista, bool *atirouBola)
 
          if ((aux->bola.posY > RES_HEIGHT - 5))
          {
-            // aux->bola.speedY = 0;
-            // aux->bola.speedX = 0;
-            // aux->bola.viva = false;
-            aux->bola.speedY *= -1;
+            aux->bola.speedY = 0;
+            aux->bola.speedX = 0;
+            aux->bola.viva = false;
+            aux->bola.shooted = false;
+            // aux->bola.speedY *= -1;
+            flagBolasTodasMortas = true;
          }
 
-         if (aux->proximo == NULL)
+         if ((aux->proximo == NULL) && (aux->bola.shooted == false) && (aux->bola.speedX == 0) && (flagBolasTodasMortas == true))
          {
-            atirouBola = false;
+            (*atirouBola) = false;
          }
       }
       aux = aux->proximo;
    }
 }
 
-void atiraBolas(Lista *lista, double x_mouse, double y_mouse)
+void atiraBolas(ListaBolas *lista, double x_mouse, double y_mouse)
 {
    double dir;
    ElementoDaLista *aux = lista->ponteiroInicio;
@@ -193,6 +197,7 @@ void atiraBolas(Lista *lista, double x_mouse, double y_mouse)
          dir = atan2((y_mouse - aux->bola.posY), (x_mouse - aux->bola.posX));
          aux->bola.speedX = SPEED * cos(dir);
          aux->bola.speedY = SPEED * sin(dir);
+         aux->bola.posY -= 20;
       }
       aux = aux->proximo;
    }

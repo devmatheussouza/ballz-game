@@ -1,6 +1,7 @@
 {
    "files.associations": {
       "*.c": "c",
-      "cmath": "c"
+      "cmath": "c",
+      "allegro_acodec.h": "c"
    }
 }

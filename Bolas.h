@@ -24,15 +24,15 @@ typedef struct Elemento ElementoDaLista;
 typedef struct
 {
    ElementoDaLista *ponteiroInicio;
-} Lista;
+} ListaBolas;
 
-Lista *criaLista();
-void liberaLista(Lista *lista);
-int tamanhoDaLista(Lista *lista);
-bool listaVazia(Lista *lista);
-bool insereFinalDaLista(Lista *lista);
+ListaBolas *criaListaBolas();
+void liberaListaBolas(ListaBolas *lista);
+int tamanhoDaListaBolas(ListaBolas *lista);
+bool listaVaziaBolas(ListaBolas *lista);
+bool insereFinalDaListaBolas(ListaBolas *lista);
 Bola criaBola();
-void drawBolas(Lista *lista);
-void updateBolas(Lista *lista);
-void colisaoBolas(Lista *lista, bool *atirouBola);
-void atiraBolas(Lista *lista, double x_mouse, double y_mouse);
+void drawBolas(ListaBolas *lista);
+void updateBolas(ListaBolas *lista);
+void colisaoBolas(ListaBolas *lista, bool *atirouBola);
+void atiraBolas(ListaBolas *lista, double x_mouse, double y_mouse);
