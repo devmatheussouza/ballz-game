@@ -96,14 +96,17 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha)
 {
     (*numeroDaLinha)++;
     int probGerarBloco;
+    int probGerarItem;
     int qntDeVida;
     int incrementoWidth = 72;
+    int contadorItens = 0;
     Blocos bloco;
 
     for (int i = 0; i < QNT_BLOCOS; i++)
     {
         probGerarBloco = numAleatorio(0, 100);
-        if (probGerarBloco <= 70)
+        probGerarItem = numAleatorio(0, 100);
+        if (probGerarBloco <= 45)
         {
             qntDeVida = numAleatorio(1 * (*numeroDaLinha), 3 * (*numeroDaLinha));
             bloco.vidas = qntDeVida;
@@ -114,7 +117,25 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha)
             bloco.boundX = 10;
             bloco.boundY = 10;
             bloco.linhaDoBloco = (*numeroDaLinha);
+            bloco.item = false;
             insereFinalDaListaBlocos(lista, bloco);
+        }
+        else
+        {
+            if ((probGerarItem <= 30) && (contadorItens == 0))
+            {
+                contadorItens++;
+                bloco.vidas = 1;
+                bloco.posX1 = 10 + incrementoWidth * i;
+                bloco.posY1 = 60;
+                bloco.posX2 = 70 + incrementoWidth * i;
+                bloco.posY2 = 120;
+                bloco.boundX = 10;
+                bloco.boundY = 10;
+                bloco.linhaDoBloco = (*numeroDaLinha);
+                bloco.item = true;
+                insereFinalDaListaBlocos(lista, bloco);
+            }
         }
     }
 }
@@ -125,7 +146,7 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *font)
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL)
     {
-        if (aux->bloco.vidas > 0)
+        if ((aux->bloco.vidas > 0) && (aux->bloco.item == false))
         {
             if (aux->bloco.vidas <= 5)
             {
@@ -149,6 +170,11 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *font)
             }
             al_draw_filled_rectangle(aux->bloco.posX1, aux->bloco.posY1, aux->bloco.posX2, aux->bloco.posY2, color);
             al_draw_textf(font, al_map_rgb(0, 0, 0), aux->bloco.posX1 + 30, aux->bloco.posY1 + 20, ALLEGRO_ALIGN_CENTRE, "%d", aux->bloco.vidas);
+        }
+        else if ((aux->bloco.vidas > 0) && (aux->bloco.item == true))
+        {
+            al_draw_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 20, al_map_rgb(255, 255, 255), 2);
+            al_draw_filled_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 10, al_map_rgb(255, 255, 255));
         }
         aux = aux->proximo;
     }

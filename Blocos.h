@@ -10,6 +10,7 @@ typedef struct
    int posY2;
    int boundX;
    int boundY;
+   bool item;
 } Blocos;
 
 struct ElementoBloco
