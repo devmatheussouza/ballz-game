@@ -14,7 +14,7 @@
 
 #define RES_WIDTH 800
 #define RES_HEIGHT 960
-#define RAIO 10
+#define RAIO 8
 #define SPEED 8.0
 
 Lista *criaLista()

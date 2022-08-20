@@ -17,7 +17,7 @@
 #define FPS 60.0
 #define KEY_SEEN 1
 #define KEY_RELEASED 2
-#define RAIO 10
+#define RAIO 8
 
 // Estados
 enum STATES
@@ -53,6 +53,7 @@ int main(int argc, char const *argv[])
     bool redraw = true;
     bool fimDoGame = false;
     bool tocandoMusicaMenu = true;
+    bool clickDesativarMusicaMenu = false;
     bool atirouBola = false;
     bool clickPlay = false;
     int estadoAtual = MENU;
@@ -76,6 +77,7 @@ int main(int argc, char const *argv[])
     ALLEGRO_FONT *font60 = NULL;
     ALLEGRO_FONT *font80 = NULL;
     ALLEGRO_FONT *font140 = NULL;
+    ALLEGRO_BITMAP *nota_musical = NULL;
 
     // Inicialization
     must_init(display, "Display");
@@ -88,6 +90,8 @@ int main(int argc, char const *argv[])
     must_init(al_install_keyboard(), "Keyboard");
     must_init(al_install_mouse(), "Mouse");
     al_set_window_title(display, "BALLZ");
+    nota_musical = al_load_bitmap("./images/nota-musical.png");
+    al_convert_mask_to_alpha(nota_musical, al_map_rgb(255, 0, 255));
     font32 = al_load_font("./fonts/creHappiness.ttf", 32, 0);
     font40 = al_load_font("./fonts/creHappiness.ttf", 40, 0);
     font60 = al_load_font("./fonts/creHappiness.ttf", 60, 0);
@@ -132,6 +136,7 @@ int main(int argc, char const *argv[])
         {
         case ALLEGRO_EVENT_KEY_DOWN:
             key[ev.keyboard.keycode] = KEY_SEEN | KEY_RELEASED;
+
             break;
 
         case ALLEGRO_EVENT_KEY_UP:
@@ -155,6 +160,13 @@ int main(int argc, char const *argv[])
                 ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 460) && (mouseY <= 530) && (estadoAtual == GAMEOVER)) ||
                 ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 470) && (mouseY <= 540) && (estadoAtual == PAUSE)))
             {
+
+                if (tocandoMusicaMenu == true)
+                {
+                    tocandoMusicaMenu = false;
+                    al_stop_sample(&menuSongId);
+                }
+
                 if (lista != NULL)
                 {
                     liberaLista(lista);
@@ -172,6 +184,16 @@ int main(int argc, char const *argv[])
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 560) && (mouseY <= 630) && (estadoAtual == MENU))
             {
                 estadoAtual = SCORES;
+            }
+
+            if ((mouseX >= 340) && (mouseX <= 460) && (mouseY >= 700) && (mouseY <= 820) && (estadoAtual == MENU) && (tocandoMusicaMenu == false))
+            {
+                clickDesativarMusicaMenu = false;
+            }
+
+            if ((mouseX >= 340) && (mouseX <= 460) && (mouseY >= 700) && (mouseY <= 820) && (estadoAtual == MENU) && (tocandoMusicaMenu == true))
+            {
+                clickDesativarMusicaMenu = true;
             }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 570) && (mouseY <= 640) && (estadoAtual == GAMEOVER))
@@ -201,24 +223,40 @@ int main(int argc, char const *argv[])
                 switch (estadoAtual)
                 {
                 case MENU:
-                    if (tocandoMusicaMenu == false)
+                    if ((clickDesativarMusicaMenu == false) && (tocandoMusicaMenu == false))
                     {
                         tocandoMusicaMenu = true;
                         al_play_sample(menuSong, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &menuSongId);
                     }
+
+                    if ((clickDesativarMusicaMenu == true) && (tocandoMusicaMenu == true))
+                    {
+                        tocandoMusicaMenu = false;
+                        al_stop_sample(&menuSongId);
+                    }
+
                     if (key[ALLEGRO_KEY_Q])
                         fimDoGame = true;
+
                     if (key[ALLEGRO_KEY_ENTER])
+                    {
                         estadoAtual = PLAYING;
+                        if (lista != NULL)
+                        {
+                            liberaLista(lista);
+                            Lista *lista = criaLista();
+                            for (int i = 0; i < 5; i++)
+                                insereFinalDaLista(lista);
+
+                            atirouBola = false;
+                            estadoAtual = PLAYING;
+                            clickPlay = true;
+                            scoreAtual = 0;
+                        }
+                    }
                     break;
 
                 case PLAYING:
-                    if (tocandoMusicaMenu == true)
-                    {
-                        al_stop_sample(&menuSongId);
-                        tocandoMusicaMenu = false;
-                    }
-
                     updateBolas(lista);
                     colisaoBolas(lista, &atirouBola);
 
@@ -228,7 +266,10 @@ int main(int argc, char const *argv[])
 
                 case PAUSE:
                     if (key[ALLEGRO_KEY_ENTER])
+                    {
                         estadoAtual = PLAYING;
+                        clickPlay = true;
+                    }
                     break;
 
                 case GAMEOVER:
@@ -267,6 +308,11 @@ int main(int argc, char const *argv[])
                 al_draw_filled_rounded_rectangle(250, 560, 550, 630, 35, 35, al_map_rgba(22, 117, 187, 255));
                 al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 468, ALLEGRO_ALIGN_CENTRE, "PLAY");
                 al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 578, ALLEGRO_ALIGN_CENTRE, "SCORES");
+                al_draw_circle(RES_WIDTH / 2, RES_HEIGHT - 200, 60, al_map_rgb(240, 0, 240), 2);
+                al_draw_bitmap(nota_musical, (RES_WIDTH / 2) - 44, RES_HEIGHT - 240, 0);
+                if (clickDesativarMusicaMenu == true)
+                    al_draw_line(360, 718, 445, 802, al_map_rgb(255, 0, 0), 3);
+
                 break;
 
             case PLAYING:
@@ -321,6 +367,7 @@ int main(int argc, char const *argv[])
 
     if (lista != NULL)
         liberaLista(lista);
+    al_destroy_bitmap(nota_musical);
     al_destroy_sample(menuSong);
     al_destroy_font(font32);
     al_destroy_font(font40);
