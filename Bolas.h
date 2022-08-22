@@ -1,12 +1,11 @@
 #include <stdbool.h>
+#include "Blocos.h"
 
 typedef struct
 {
    bool viva;
    double posX;
    double posY;
-   int boundX;
-   int boundY;
    double speedX;
    double speedY;
    bool bolaReferencia; // primeira bola a chegar no final da tela;
@@ -34,5 +33,5 @@ bool insereFinalDaListaBolas(ListaBolas *lista);
 Bola criaBola();
 void drawBolas(ListaBolas *lista);
 void updateBolas(ListaBolas *lista);
-void colisaoBolas(ListaBolas *lista, bool *atirouBola);
+void colisaoBolas(ListaBolas *lista, bool *atirouBola, ListaBlocos *listaBlocos, int *scoreAtual);
 void atiraBolas(ListaBolas *lista, double x_mouse, double y_mouse);

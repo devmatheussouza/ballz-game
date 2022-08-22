@@ -11,7 +11,6 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include "Bolas.h"
-#include "Blocos.h"
 
 #define RES_WIDTH 800
 #define RES_HEIGHT 960
@@ -20,6 +19,7 @@
 #define KEY_RELEASED 2
 #define RAIO 8
 #define INCREMENT_HEIGHT 70
+#define HEIGHT_LANCAMENTO 930
 
 // Estados
 enum STATES
@@ -31,18 +31,6 @@ enum STATES
     PAUSE
 };
 
-double tempoInicial = 0;
-
-void iniciarTimer()
-{
-    tempoInicial = al_get_time();
-}
-
-double obterTempoTimer()
-{
-    return al_get_time() - tempoInicial;
-}
-
 // Prototipos das funcoes
 void must_init(bool test, const char *description);
 
@@ -51,21 +39,11 @@ int main(int argc, char const *argv[])
 {
     srand(time(NULL));
 
-    bool redraw = true;
-    bool fimDoGame = false;
-    bool tocandoMusicaMenu = true;
-    bool clickDesativarMusicaMenu = false;
-    bool atirouBola = false;
-    bool clickPlay = false;
-    bool descerBloco = false;
-    int estadoAtual = MENU;
-    int scoreAtual = 0;
-    double mouseX;
-    double mouseY;
-    int numeroDalinha = 0;
-
-    int frame = 0;
-    bool limitado = true;
+    bool redraw = true, fimDoGame = false;
+    bool tocandoMusicaMenu = true, clickDesativarMusicaMenu = false;
+    bool atirouBola = false, clickPlay = false, descerBloco = false;
+    double mouseX, mouseY;
+    int estadoAtual = MENU, scoreAtual = 0, numeroDalinha = 0;
 
     // Allegro variables
     must_init(al_init(), "Allegro");
@@ -75,12 +53,8 @@ int main(int argc, char const *argv[])
     ALLEGRO_DISPLAY *display = al_create_display(RES_WIDTH, RES_HEIGHT);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
-    ALLEGRO_FONT *font28 = NULL;
-    ALLEGRO_FONT *font32 = NULL;
-    ALLEGRO_FONT *font40 = NULL;
-    ALLEGRO_FONT *font60 = NULL;
-    ALLEGRO_FONT *font80 = NULL;
-    ALLEGRO_FONT *font140 = NULL;
+    ALLEGRO_FONT *font28 = NULL, *font32 = NULL, *font40 = NULL;
+    ALLEGRO_FONT *font60 = NULL, *font80 = NULL, *font140 = NULL;
     ALLEGRO_BITMAP *nota_musical = NULL;
 
     // Inicialization
@@ -95,7 +69,6 @@ int main(int argc, char const *argv[])
     must_init(al_install_mouse(), "Mouse");
     al_set_window_title(display, "BALLZ");
     nota_musical = al_load_bitmap("./images/nota-musical.png");
-    al_convert_mask_to_alpha(nota_musical, al_map_rgb(255, 0, 255));
     font28 = al_load_font("./fonts/creHappiness.ttf", 28, 0);
     font32 = al_load_font("./fonts/creHappiness.ttf", 32, 0);
     font40 = al_load_font("./fonts/creHappiness.ttf", 40, 0);
@@ -114,11 +87,10 @@ int main(int argc, char const *argv[])
 
     ALLEGRO_SAMPLE *menuSong = al_load_sample("./audio/menuSong.wav");
     ALLEGRO_SAMPLE_ID menuSongId;
-    must_init(menuSong, "pianoLoop");
+    must_init(menuSong, "MenuSong");
 
     ListaBolas *listaBolas = criaListaBolas();
-    for (int i = 0; i < 5; i++)
-        insereFinalDaListaBolas(listaBolas);
+    insereFinalDaListaBolas(listaBolas);
 
     ListaBlocos *listaBlocos = criaListaBlocos();
     preencheLinhaBlocos(listaBlocos, &numeroDalinha);
@@ -145,7 +117,6 @@ int main(int argc, char const *argv[])
         {
         case ALLEGRO_EVENT_KEY_DOWN:
             key[ev.keyboard.keycode] = KEY_SEEN | KEY_RELEASED;
-
             break;
 
         case ALLEGRO_EVENT_KEY_UP:
@@ -181,8 +152,7 @@ int main(int argc, char const *argv[])
                 {
                     liberaListaBolas(listaBolas);
                     ListaBolas *listaBolas = criaListaBolas();
-                    for (int i = 0; i < 5; i++)
-                        insereFinalDaListaBolas(listaBolas);
+                    insereFinalDaListaBolas(listaBolas);
 
                     liberaListaBlocos(listaBlocos);
                     ListaBlocos *listaBlocos = criaListaBlocos();
@@ -198,35 +168,22 @@ int main(int argc, char const *argv[])
             }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 560) && (mouseY <= 630) && (estadoAtual == MENU))
-            {
                 estadoAtual = SCORES;
-            }
 
             if ((mouseX >= 340) && (mouseX <= 460) && (mouseY >= 700) && (mouseY <= 820) && (estadoAtual == MENU) && (tocandoMusicaMenu == false))
-            {
                 clickDesativarMusicaMenu = false;
-            }
 
             if ((mouseX >= 340) && (mouseX <= 460) && (mouseY >= 700) && (mouseY <= 820) && (estadoAtual == MENU) && (tocandoMusicaMenu == true))
-            {
                 clickDesativarMusicaMenu = true;
-            }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 570) && (mouseY <= 640) && (estadoAtual == GAMEOVER))
-            {
                 estadoAtual = MENU;
-            }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 360) && (mouseY <= 430) && (estadoAtual == PAUSE))
-            {
                 estadoAtual = PLAYING;
-            }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 580) && (mouseY <= 650) && (estadoAtual == PAUSE))
-            {
                 estadoAtual = MENU;
-            }
-
             break;
 
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -256,13 +213,11 @@ int main(int argc, char const *argv[])
 
                     if (key[ALLEGRO_KEY_ENTER])
                     {
-                        estadoAtual = PLAYING;
                         if (listaBolas != NULL)
                         {
                             liberaListaBolas(listaBolas);
                             ListaBolas *listaBolas = criaListaBolas();
-                            for (int i = 0; i < 5; i++)
-                                insereFinalDaListaBolas(listaBolas);
+                            insereFinalDaListaBolas(listaBolas);
 
                             liberaListaBlocos(listaBlocos);
                             ListaBlocos *listaBlocos = criaListaBlocos();
@@ -275,13 +230,22 @@ int main(int argc, char const *argv[])
                             clickPlay = true;
                             scoreAtual = 0;
                         }
+                        estadoAtual = PLAYING;
                     }
                     break;
 
                 case PLAYING:
-                    colisaoBolas(listaBolas, &atirouBola);
-                    updateBolas(listaBolas);
-                    updateBlocos(listaBlocos, &descerBloco, &atirouBola, &numeroDalinha);
+
+                    if (listaBlocos->ponteiroInicio->bloco.posY2 < (RES_HEIGHT - 60))
+                    {
+                        updateBlocos(listaBlocos, &descerBloco, &atirouBola, &numeroDalinha);
+                        colisaoBolas(listaBolas, &atirouBola, listaBlocos, &scoreAtual);
+                        updateBolas(listaBolas);
+                    }
+                    else
+                    {
+                        estadoAtual = GAMEOVER;
+                    }
 
                     if (key[ALLEGRO_KEY_ESCAPE])
                         estadoAtual = PAUSE;
@@ -309,7 +273,6 @@ int main(int argc, char const *argv[])
 
             for (int i = 0; i < ALLEGRO_KEY_MAX; i++)
                 key[i] &= KEY_SEEN;
-
             redraw = true;
             break;
         }
@@ -339,16 +302,25 @@ int main(int argc, char const *argv[])
 
             case PLAYING:
                 al_draw_textf(font32, al_map_rgb(255, 255, 255), 10, 15, 0, "Score: %d", scoreAtual);
+
                 drawBlocos(listaBlocos, font28);
-                if (atirouBola == false)
+                if (atirouBola == true)
                 {
-                    clickPlay = true;
-                    al_draw_filled_circle(listaBolas->ponteiroInicio->bola.posX, listaBolas->ponteiroInicio->bola.posY - 2 * RAIO, RAIO, al_map_rgb(255, 0, 50));
-                    al_draw_line(listaBolas->ponteiroInicio->bola.posX, listaBolas->ponteiroInicio->bola.posY - 3 * RAIO, mouseX, mouseY, al_map_rgb(255, 255, 255), 1);
+                    drawBolas(listaBolas);
                 }
                 else
                 {
-                    drawBolas(listaBolas);
+                    clickPlay = true;
+                    al_draw_filled_circle(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO, RAIO, al_map_rgb(255, 0, 50));
+                    al_draw_line(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO, mouseX, mouseY, al_map_rgb(255, 255, 255), 1);
+                    if (abs(listaBolas->ponteiroInicio->bola.posX - RES_WIDTH) < 50)
+                    {
+                        al_draw_textf(font28, al_map_rgb(255, 255, 255), listaBolas->ponteiroInicio->bola.posX - 40, HEIGHT_LANCAMENTO - 3 * RAIO, 0, "x%d", tamanhoDaListaBolas(listaBolas));
+                    }
+                    else
+                    {
+                        al_draw_textf(font28, al_map_rgb(255, 255, 255), listaBolas->ponteiroInicio->bola.posX + 20, HEIGHT_LANCAMENTO - 3 * RAIO, 0, "x%d", tamanhoDaListaBolas(listaBolas));
+                    }
                 }
                 break;
 
@@ -379,12 +351,6 @@ int main(int argc, char const *argv[])
 
             al_flip_display();
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            frame++;
-
-            if (limitado && (obterTempoTimer() < 1.0 / FPS))
-            {
-                al_rest((1.0 / FPS) - obterTempoTimer());
-            }
         }
     }
 

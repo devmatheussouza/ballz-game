@@ -11,9 +11,11 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include "Bolas.h"
-#include "Blocos.h"
 
+#define HEIGHT_LANCAMENTO 930
 #define QNT_BLOCOS 11
+
+int desenhoItem = 0;
 
 int numAleatorio(int n, int m)
 {
@@ -106,7 +108,7 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha)
     {
         probGerarBloco = numAleatorio(0, 100);
         probGerarItem = numAleatorio(0, 100);
-        if (probGerarBloco <= 45)
+        if (probGerarBloco <= 55)
         {
             qntDeVida = numAleatorio(1 * (*numeroDaLinha), 3 * (*numeroDaLinha));
             bloco.vidas = qntDeVida;
@@ -114,15 +116,15 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha)
             bloco.posY1 = 60;
             bloco.posX2 = 70 + incrementoWidth * i;
             bloco.posY2 = 120;
-            bloco.boundX = 10;
-            bloco.boundY = 10;
             bloco.linhaDoBloco = (*numeroDaLinha);
             bloco.item = false;
+            bloco.descerItem = false;
+            bloco.blinkItem = 0;
             insereFinalDaListaBlocos(lista, bloco);
         }
         else
         {
-            if ((probGerarItem <= 30) && (contadorItens == 0))
+            if ((probGerarItem <= 50) && (contadorItens == 0))
             {
                 contadorItens++;
                 bloco.vidas = 1;
@@ -130,10 +132,10 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha)
                 bloco.posY1 = 60;
                 bloco.posX2 = 70 + incrementoWidth * i;
                 bloco.posY2 = 120;
-                bloco.boundX = 10;
-                bloco.boundY = 10;
                 bloco.linhaDoBloco = (*numeroDaLinha);
                 bloco.item = true;
+                bloco.descerItem = false;
+                bloco.blinkItem = 0;
                 insereFinalDaListaBlocos(lista, bloco);
             }
         }
@@ -146,6 +148,12 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *font)
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL)
     {
+        if (aux->bloco.descerItem == true)
+        {
+            al_draw_filled_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 8, al_map_rgb(0, 200, 0));
+            al_draw_text(font, al_map_rgb(255, 255, 255), aux->bloco.posX1 + 40, aux->bloco.posY1, 8, "+1");
+        }
+
         if ((aux->bloco.vidas > 0) && (aux->bloco.item == false))
         {
             if (aux->bloco.vidas <= 5)
@@ -171,20 +179,45 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *font)
             al_draw_filled_rectangle(aux->bloco.posX1, aux->bloco.posY1, aux->bloco.posX2, aux->bloco.posY2, color);
             al_draw_textf(font, al_map_rgb(0, 0, 0), aux->bloco.posX1 + 30, aux->bloco.posY1 + 20, ALLEGRO_ALIGN_CENTRE, "%d", aux->bloco.vidas);
         }
-        else if ((aux->bloco.vidas > 0) && (aux->bloco.item == true))
+        else if ((aux->bloco.vidas > 0) && (aux->bloco.item == true) && (aux->bloco.descerItem == false))
         {
-            al_draw_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 20, al_map_rgb(255, 255, 255), 2);
-            al_draw_filled_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 10, al_map_rgb(255, 255, 255));
+            if (aux->bloco.blinkItem <= 30)
+            {
+                al_draw_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 15, al_map_rgb(255, 255, 255), 3);
+                al_draw_filled_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 10, al_map_rgb(255, 255, 255));
+                aux->bloco.blinkItem++;
+            }
+
+            if (aux->bloco.blinkItem > 30 && aux->bloco.blinkItem <= 60)
+            {
+                al_draw_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 20, al_map_rgb(255, 255, 255), 3);
+                al_draw_filled_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 10, al_map_rgb(255, 255, 255));
+                aux->bloco.blinkItem++;
+                if (aux->bloco.blinkItem == 60)
+                {
+                    aux->bloco.blinkItem = 0;
+                }
+            }
         }
+
         aux = aux->proximo;
     }
 }
 
 void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *numeroDaLinha)
 {
+    ElementoDaListaBloco *aux = lista->ponteiroInicio;
+    while (aux != NULL)
+    {
+        if ((aux->bloco.descerItem == true) && (aux->bloco.posY1 < 900))
+            aux->bloco.posY1 += 8;
+
+        aux = aux->proximo;
+    }
+
     if (((*descerBlocos) == true) && ((*atirouBola) == false))
     {
-        ElementoDaListaBloco *aux = lista->ponteiroInicio;
+        aux = lista->ponteiroInicio;
         for (int i = 1; i <= (*numeroDaLinha); i++)
         {
             while ((aux != NULL) && (aux->bloco.linhaDoBloco == i))

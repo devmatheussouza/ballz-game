@@ -8,9 +8,9 @@ typedef struct
    int posX2;
    int posY1;
    int posY2;
-   int boundX;
-   int boundY;
    bool item;
+   bool descerItem;
+   int blinkItem;
 } Blocos;
 
 struct ElementoBloco
