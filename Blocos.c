@@ -110,7 +110,7 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha)
         probGerarItem = numAleatorio(0, 100);
         if (probGerarBloco <= 55)
         {
-            qntDeVida = numAleatorio(1 * (*numeroDaLinha), 3 * (*numeroDaLinha));
+            qntDeVida = numAleatorio(1 * (*numeroDaLinha), 2 * (*numeroDaLinha));
             bloco.vidas = qntDeVida;
             bloco.posX1 = 10 + incrementoWidth * i;
             bloco.posY1 = 60;
@@ -179,7 +179,8 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *font)
             al_draw_filled_rectangle(aux->bloco.posX1, aux->bloco.posY1, aux->bloco.posX2, aux->bloco.posY2, color);
             al_draw_textf(font, al_map_rgb(0, 0, 0), aux->bloco.posX1 + 30, aux->bloco.posY1 + 20, ALLEGRO_ALIGN_CENTRE, "%d", aux->bloco.vidas);
         }
-        else if ((aux->bloco.vidas > 0) && (aux->bloco.item == true) && (aux->bloco.descerItem == false))
+
+        if ((aux->bloco.vidas > 0) && (aux->bloco.item == true) && (aux->bloco.descerItem == false))
         {
             if (aux->bloco.blinkItem <= 30)
             {
@@ -194,9 +195,7 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *font)
                 al_draw_filled_circle(aux->bloco.posX1 + 30, aux->bloco.posY1 + 30, 10, al_map_rgb(255, 255, 255));
                 aux->bloco.blinkItem++;
                 if (aux->bloco.blinkItem == 60)
-                {
                     aux->bloco.blinkItem = 0;
-                }
             }
         }
 
@@ -209,9 +208,13 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL)
     {
-        if ((aux->bloco.descerItem == true) && (aux->bloco.posY1 < 900))
-            aux->bloco.posY1 += 8;
-
+        if (aux->bloco.descerItem == true)
+        {
+            if (aux->bloco.posY1 < 900)
+                aux->bloco.posY1 += 8;
+            else if ((*atirouBola) == false)
+                aux->bloco.descerItem = false;
+        }
         aux = aux->proximo;
     }
 

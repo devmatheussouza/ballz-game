@@ -16,12 +16,11 @@
 #define RES_HEIGHT 960
 #define RAIO 8
 #define SPEED 8.0
-#define HEIGHT_LANCAMENTO 930
+#define HEIGHT_LANCAMENTO 940
 
 int quantidadeBolasMortas = 0;
 bool primeiraBolaMorta = false, flagTodasMorreram = false;
 double posX_Ref = 0;
-int qntBolasAdicionadas = 0;
 
 ListaBolas *criaListaBolas()
 {
@@ -121,6 +120,48 @@ void drawBolas(ListaBolas *lista)
    }
 }
 
+void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xReferencia)
+{
+   double yDist = (HEIGHT_LANCAMENTO - yMouse) / 10;
+   double xDist = (xMouse - xReferencia) / 10;
+   double raio = RAIO;
+
+   if (yDist > 50)
+   {
+      raio = RAIO - 1;
+   }
+   else if (yDist > 40)
+   {
+      raio = RAIO - 2;
+   }
+   else
+   {
+      raio = RAIO - 3;
+   }
+
+   ElementoDaLista *aux = lista->ponteiroInicio;
+   while (aux != NULL)
+   {
+      if (aux->anterior == NULL)
+      {
+         aux->bola.posX = xReferencia + xDist;
+         aux->bola.posY = HEIGHT_LANCAMENTO - yDist;
+
+         if (yDist < 30)
+            al_draw_filled_circle(aux->bola.posX, aux->bola.posY, raio, al_map_rgb(255, 255, 255));
+         else
+            al_draw_filled_triangle(aux->bola.posX, aux->bola.posY, xReferencia - 10, HEIGHT_LANCAMENTO - 12, xReferencia + 10, HEIGHT_LANCAMENTO - 12, al_map_rgb(255, 255, 255));
+      }
+      else
+      {
+         aux->bola.posX = aux->anterior->bola.posX + xDist;
+         aux->bola.posY = aux->anterior->bola.posY - yDist;
+         al_draw_filled_circle(aux->bola.posX, aux->bola.posY, raio, al_map_rgb(255, 255, 255));
+      }
+      aux = aux->proximo;
+   }
+}
+
 void updateBolas(ListaBolas *lista)
 {
    ElementoDaLista *aux = lista->ponteiroInicio;
@@ -152,7 +193,7 @@ void updateBolas(ListaBolas *lista)
    }
 }
 
-void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBlocos, int *scoreAtual)
+void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBlocos, int *scoreAtual, int *qntBolasAdicionadas, int *qntBolasMortas)
 {
    int dist = RAIO;
    ElementoDaListaBloco *auxBloco = listaBlocos->ponteiroInicio;
@@ -162,10 +203,10 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
    {
       if (aux->bola.viva == true)
       {
-         if ((aux->bola.posX >= RES_WIDTH - 2 * RAIO) || (aux->bola.posX <= 2 * RAIO))
+         if ((aux->bola.posX >= RES_WIDTH - RAIO) || (aux->bola.posX <= RAIO))
             aux->bola.speedX *= -1;
 
-         if ((aux->bola.posY <= 2 * RAIO))
+         if ((aux->bola.posY <= RAIO))
             aux->bola.speedY *= -1;
 
          while (auxBloco != NULL)
@@ -176,16 +217,27 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                dist = RAIO;
 
             if ((auxBloco->bloco.vidas > 0) &&
-                (aux->bola.posX + dist > auxBloco->bloco.posX1) &&
-                (aux->bola.posX - dist < auxBloco->bloco.posX2) &&
-                (aux->bola.posY + dist > auxBloco->bloco.posY1) &&
-                (aux->bola.posY - dist < auxBloco->bloco.posY2))
+                (aux->bola.posX + dist >= auxBloco->bloco.posX1) &&
+                (aux->bola.posX - dist <= auxBloco->bloco.posX2) &&
+                (aux->bola.posY + dist >= auxBloco->bloco.posY1) &&
+                (aux->bola.posY - dist <= auxBloco->bloco.posY2))
             {
                if (auxBloco->bloco.item == true)
                {
                   auxBloco->bloco.descerItem = true;
-                  insereFinalDaListaBolas(listaBolas);
-                  qntBolasAdicionadas++;
+                  (*qntBolasAdicionadas)++;
+               }
+
+               if (aux->bola.posX > auxBloco->bloco.posX2 ||
+                   aux->bola.posX < auxBloco->bloco.posX1)
+               {
+                  aux->bola.speedX *= -1;
+               }
+
+               if (aux->bola.posY > auxBloco->bloco.posY2 ||
+                   aux->bola.posY < auxBloco->bloco.posY1)
+               {
+                  aux->bola.speedY *= -1;
                }
 
                if (auxBloco->bloco.vidas >= 1)
@@ -194,16 +246,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                   if (auxBloco->bloco.vidas == 0)
                      (*scoreAtual)++;
                }
-
-               if (aux->bola.posX > auxBloco->bloco.posX2 ||
-                   aux->bola.posX < auxBloco->bloco.posX1)
-                  aux->bola.speedX *= -1;
-
-               if (aux->bola.posY < auxBloco->bloco.posY1 ||
-                   aux->bola.posY > auxBloco->bloco.posY2)
-                  aux->bola.speedY *= -1;
             }
-
             auxBloco = auxBloco->proximo;
          }
 
@@ -219,14 +262,16 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
             aux->bola.speedX = 0;
             aux->bola.shooted = false;
             aux->bola.viva = false;
-            quantidadeBolasMortas++;
+            (*qntBolasMortas)++;
 
-            if (quantidadeBolasMortas == (tamanhoDaListaBolas(listaBolas) - qntBolasAdicionadas))
+            if ((*qntBolasMortas) == (tamanhoDaListaBolas(listaBolas)))
             {
-               (*atirouBola) = false;
-               primeiraBolaMorta = false;
-               quantidadeBolasMortas = 0;
-               qntBolasAdicionadas = 0;
+               if ((*qntBolasAdicionadas) > 0)
+               {
+                  for (int i = 0; i < (*qntBolasAdicionadas); i++)
+                     insereFinalDaListaBolas(listaBolas);
+               }
+
                ElementoDaLista *auxiliar = listaBolas->ponteiroInicio;
                while (auxiliar != NULL)
                {
@@ -234,7 +279,12 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                   auxiliar->bola.posY = HEIGHT_LANCAMENTO;
                   auxiliar = auxiliar->proximo;
                }
+
                posX_Ref = 0;
+               (*atirouBola) = false;
+               primeiraBolaMorta = false;
+               (*qntBolasMortas) = 0;
+               (*qntBolasAdicionadas) = 0;
             }
          }
       }

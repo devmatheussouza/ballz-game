@@ -32,6 +32,7 @@ bool listaVaziaBolas(ListaBolas *lista);
 bool insereFinalDaListaBolas(ListaBolas *lista);
 Bola criaBola();
 void drawBolas(ListaBolas *lista);
+void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xReferencia);
 void updateBolas(ListaBolas *lista);
-void colisaoBolas(ListaBolas *lista, bool *atirouBola, ListaBlocos *listaBlocos, int *scoreAtual);
+void colisaoBolas(ListaBolas *lista, bool *atirouBola, ListaBlocos *listaBlocos, int *scoreAtual, int *qntBolasAdicionadas, int *qntBolasMortas);
 void atiraBolas(ListaBolas *lista, double x_mouse, double y_mouse);

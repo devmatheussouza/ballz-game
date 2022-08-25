@@ -19,7 +19,7 @@
 #define KEY_RELEASED 2
 #define RAIO 8
 #define INCREMENT_HEIGHT 70
-#define HEIGHT_LANCAMENTO 930
+#define HEIGHT_LANCAMENTO 940
 
 // Estados
 enum STATES
@@ -44,6 +44,7 @@ int main(int argc, char const *argv[])
     bool atirouBola = false, clickPlay = false, descerBloco = false;
     double mouseX, mouseY;
     int estadoAtual = MENU, scoreAtual = 0, numeroDalinha = 0;
+    int qntBolasAdicionadas = 0, qntBolasMortas = 0;
 
     // Allegro variables
     must_init(al_init(), "Allegro");
@@ -94,6 +95,12 @@ int main(int argc, char const *argv[])
 
     ListaBlocos *listaBlocos = criaListaBlocos();
     preencheLinhaBlocos(listaBlocos, &numeroDalinha);
+
+    ListaBolas *listaBolasMira = criaListaBolas();
+    for (int i = 0; i < 10; i++)
+    {
+        insereFinalDaListaBolas(listaBolasMira);
+    }
 
     // Register event source;
     al_register_event_source(event_queue, al_get_display_event_source(display));
@@ -148,23 +155,28 @@ int main(int argc, char const *argv[])
                     al_stop_sample(&menuSongId);
                 }
 
+                qntBolasAdicionadas = 0;
+                qntBolasMortas = 0;
+                numeroDalinha = 0;
                 if (listaBolas != NULL)
                 {
                     liberaListaBolas(listaBolas);
                     ListaBolas *listaBolas = criaListaBolas();
                     insereFinalDaListaBolas(listaBolas);
+                }
 
+                if (listaBlocos != NULL)
+                {
                     liberaListaBlocos(listaBlocos);
                     ListaBlocos *listaBlocos = criaListaBlocos();
-                    numeroDalinha = 0;
-                    descerBloco = false;
                     preencheLinhaBlocos(listaBlocos, &numeroDalinha);
-
-                    atirouBola = false;
-                    estadoAtual = PLAYING;
-                    clickPlay = true;
-                    scoreAtual = 0;
                 }
+
+                descerBloco = false;
+                atirouBola = false;
+                clickPlay = true;
+                scoreAtual = 0;
+                estadoAtual = PLAYING;
             }
 
             if ((mouseX >= 255) && (mouseX <= 545) && (mouseY >= 560) && (mouseY <= 630) && (estadoAtual == MENU))
@@ -213,33 +225,37 @@ int main(int argc, char const *argv[])
 
                     if (key[ALLEGRO_KEY_ENTER])
                     {
+                        qntBolasAdicionadas = 0;
+                        qntBolasMortas = 0;
+                        numeroDalinha = 0;
+
                         if (listaBolas != NULL)
                         {
                             liberaListaBolas(listaBolas);
                             ListaBolas *listaBolas = criaListaBolas();
                             insereFinalDaListaBolas(listaBolas);
+                        }
 
+                        if (listaBlocos != NULL)
+                        {
                             liberaListaBlocos(listaBlocos);
                             ListaBlocos *listaBlocos = criaListaBlocos();
-                            numeroDalinha = 0;
-                            descerBloco = false;
                             preencheLinhaBlocos(listaBlocos, &numeroDalinha);
-
-                            atirouBola = false;
-                            estadoAtual = PLAYING;
-                            clickPlay = true;
-                            scoreAtual = 0;
                         }
+
+                        descerBloco = false;
+                        atirouBola = false;
+                        clickPlay = true;
+                        scoreAtual = 0;
                         estadoAtual = PLAYING;
                     }
                     break;
 
                 case PLAYING:
-
                     if (listaBlocos->ponteiroInicio->bloco.posY2 < (RES_HEIGHT - 60))
                     {
                         updateBlocos(listaBlocos, &descerBloco, &atirouBola, &numeroDalinha);
-                        colisaoBolas(listaBolas, &atirouBola, listaBlocos, &scoreAtual);
+                        colisaoBolas(listaBolas, &atirouBola, listaBlocos, &scoreAtual, &qntBolasAdicionadas, &qntBolasMortas);
                         updateBolas(listaBolas);
                     }
                     else
@@ -273,6 +289,7 @@ int main(int argc, char const *argv[])
 
             for (int i = 0; i < ALLEGRO_KEY_MAX; i++)
                 key[i] &= KEY_SEEN;
+
             redraw = true;
             break;
         }
@@ -302,7 +319,6 @@ int main(int argc, char const *argv[])
 
             case PLAYING:
                 al_draw_textf(font32, al_map_rgb(255, 255, 255), 10, 15, 0, "Score: %d", scoreAtual);
-
                 drawBlocos(listaBlocos, font28);
                 if (atirouBola == true)
                 {
@@ -312,7 +328,8 @@ int main(int argc, char const *argv[])
                 {
                     clickPlay = true;
                     al_draw_filled_circle(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO, RAIO, al_map_rgb(255, 0, 50));
-                    al_draw_line(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO, mouseX, mouseY, al_map_rgb(255, 255, 255), 1);
+                    drawMiraBolas(listaBolasMira, mouseX, mouseY, listaBolas->ponteiroInicio->bola.posX);
+                    // al_draw_line(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO, mouseX, mouseY, al_map_rgb(255, 255, 255), 1);
                     if (abs(listaBolas->ponteiroInicio->bola.posX - RES_WIDTH) < 50)
                     {
                         al_draw_textf(font28, al_map_rgb(255, 255, 255), listaBolas->ponteiroInicio->bola.posX - 40, HEIGHT_LANCAMENTO - 3 * RAIO, 0, "x%d", tamanhoDaListaBolas(listaBolas));
@@ -359,6 +376,8 @@ int main(int argc, char const *argv[])
 
     if (listaBlocos != NULL)
         liberaListaBlocos(listaBlocos);
+
+    liberaListaBolas(listaBolasMira);
 
     al_destroy_bitmap(nota_musical);
     al_destroy_sample(menuSong);
