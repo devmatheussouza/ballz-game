@@ -31,9 +31,7 @@ ListaBolas *criaListaBolas() {
 
 void liberaListaBolas(ListaBolas *lista) {
     if (lista == NULL) return;
-
     if (listaVaziaBolas(lista)) free(lista);
-
     ElementoDaLista *nodo_remocao;
     while (lista->ponteiroInicio != NULL) {
         nodo_remocao = lista->ponteiroInicio;
@@ -56,7 +54,6 @@ int tamanhoDaListaBolas(ListaBolas *lista) {
 
 bool listaVaziaBolas(ListaBolas *lista) {
     if (lista == NULL) return false;
-
     if (lista->ponteiroInicio == NULL) return true;
     return false;
 }
@@ -186,13 +183,9 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                         (*qntBolasAdicionadas)++;
                     }
 
-                    if (aux->bola.posX > auxBloco->bloco.posX2 || aux->bola.posX < auxBloco->bloco.posX1) {
-                        aux->bola.speedX *= -1;
-                    }
+                    if (aux->bola.posX > auxBloco->bloco.posX2 || aux->bola.posX < auxBloco->bloco.posX1) aux->bola.speedX *= -1;
 
-                    if (aux->bola.posY > auxBloco->bloco.posY2 || aux->bola.posY < auxBloco->bloco.posY1) {
-                        aux->bola.speedY *= -1;
-                    }
+                    if (aux->bola.posY > auxBloco->bloco.posY2 || aux->bola.posY < auxBloco->bloco.posY1) aux->bola.speedY *= -1;
 
                     if (auxBloco->bloco.vidas >= 1) {
                         (auxBloco->bloco.vidas)--;
@@ -216,9 +209,8 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                 (*qntBolasMortas)++;
 
                 if ((*qntBolasMortas) == (tamanhoDaListaBolas(listaBolas))) {
-                    if ((*qntBolasAdicionadas) > 0) {
+                    if ((*qntBolasAdicionadas) > 0)
                         for (int i = 0; i < (*qntBolasAdicionadas); i++) insereFinalDaListaBolas(listaBolas);
-                    }
 
                     ElementoDaLista *auxiliar = listaBolas->ponteiroInicio;
                     while (auxiliar != NULL) {

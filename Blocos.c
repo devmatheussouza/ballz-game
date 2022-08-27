@@ -86,7 +86,7 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha) {
 
     for (int i = 0; i < QNT_BLOCOS; i++) {
         probGerarBloco = numAleatorio(0, 100);
-        if (probGerarBloco <= 60) {
+        if (probGerarBloco <= 50) {
             qntDeVida = numAleatorio(1 * (*numeroDaLinha), 2 * (*numeroDaLinha));
             bloco.vidas = qntDeVida;
             bloco.posX1 = 13 + incrementoWidth * i;
@@ -121,8 +121,8 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL) {
         if (aux->bloco.descerItem == true) {
-            al_draw_filled_circle(aux->bloco.posX1 + 45, aux->bloco.posY1 + 45, 8, al_map_rgb(0, 200, 0));
-            al_draw_text(fonts, al_map_rgb(255, 255, 255), aux->bloco.posX1 + 60, aux->bloco.posY1 + 10, 8, "+1");
+            al_draw_filled_circle(aux->bloco.posX1 + 45, aux->bloco.posY1, 8, al_map_rgb(0, 200, 0));
+            al_draw_text(fonts, al_map_rgb(255, 255, 255), aux->bloco.posX1 + 60, aux->bloco.posY1 - 30, 8, "+1");
         }
 
         if ((aux->bloco.vidas > 0) && (aux->bloco.item == false)) {
@@ -165,7 +165,7 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL) {
         if (aux->bloco.descerItem == true) {
-            if (aux->bloco.posY1 + 6 * RAIO < HEIGHT_LANCAMENTO)
+            if (aux->bloco.posY1 + RAIO < HEIGHT_LANCAMENTO)
                 aux->bloco.posY1 += 8;
             else if ((*atirouBola) == false)
                 aux->bloco.descerItem = false;
