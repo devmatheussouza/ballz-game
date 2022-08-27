@@ -1,29 +1,28 @@
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include <stdbool.h>
 
-typedef struct
-{
-   int linhaDoBloco;
-   int vidas;
-   int posX1;
-   int posX2;
-   int posY1;
-   int posY2;
-   bool item;
-   bool descerItem;
-   int blinkItem;
+typedef struct {
+    int linhaDoBloco;
+    int vidas;
+    int posX1;
+    int posX2;
+    int posY1;
+    int posY2;
+    bool item;
+    bool descerItem;
+    int blinkItem;
 } Blocos;
 
-struct ElementoBloco
-{
-   struct ElementoBloco *anterior;
-   Blocos bloco;
-   struct ElementoBloco *proximo;
+struct ElementoBloco {
+    struct ElementoBloco *anterior;
+    Blocos bloco;
+    struct ElementoBloco *proximo;
 };
 typedef struct ElementoBloco ElementoDaListaBloco;
 
-typedef struct
-{
-   ElementoDaListaBloco *ponteiroInicio;
+typedef struct {
+    ElementoDaListaBloco *ponteiroInicio;
 } ListaBlocos;
 
 ListaBlocos *criaListaBlocos();

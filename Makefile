@@ -1,4 +1,4 @@
-CC = gcc -std=c99 -Wall
+CC = gcc -std=c99 -Wall -g
 PROGS = Ballz
 ALLEGRO = -lallegro_image -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font -lallegro_acodec -lallegro_audio -lallegro
 CFLAGS = -I.
