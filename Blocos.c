@@ -76,42 +76,32 @@ bool insereFinalDaListaBlocos(ListaBlocos *lista, Blocos bloco) {
     return true;
 }
 
-void preencheLinhaBlocos(ListaBlocos *lista, int *numeroDaLinha) {
-    (*numeroDaLinha)++;
-    int probGerarBloco;
-    int qntDeVida;
-    int incrementoWidth = 98;
-    int contadorItens = 0;
+void preencheLinhaBlocos(ListaBlocos *lista, int *score) {
+    (*score)++;
+    int probGerarBloco, qntDeVida, incrementoWidth = 98;
     Blocos bloco;
+    int posicaoItem = numAleatorio(0, QNT_BLOCOS - 1);
 
     for (int i = 0; i < QNT_BLOCOS; i++) {
         probGerarBloco = numAleatorio(0, 100);
-        if (probGerarBloco <= 50) {
-            qntDeVida = numAleatorio(1 * (*numeroDaLinha), 2 * (*numeroDaLinha));
+        if (i == posicaoItem) {
+            bloco.vidas = 1;
+            bloco.item = true;
+        } else if (probGerarBloco <= 50) {
+            qntDeVida = numAleatorio(1 * (*score), 2 * (*score));
             bloco.vidas = qntDeVida;
-            bloco.posX1 = 13 + incrementoWidth * i;
-            bloco.posY1 = 90;
-            bloco.posX2 = 103 + incrementoWidth * i;
-            bloco.posY2 = 180;
-            bloco.linhaDoBloco = (*numeroDaLinha);
             bloco.item = false;
+        }
+
+        if (i == posicaoItem || probGerarBloco <= 50) {
+            bloco.posX1 = 13 + incrementoWidth * i;
+            bloco.posY1 = 50;
+            bloco.posX2 = 103 + incrementoWidth * i;
+            bloco.posY2 = 140;
+            bloco.linhaDoBloco = (*score);
             bloco.descerItem = false;
             bloco.blinkItem = 0;
             insereFinalDaListaBlocos(lista, bloco);
-        } else {
-            if (contadorItens == 0) {
-                contadorItens++;
-                bloco.vidas = 1;
-                bloco.posX1 = 13 + incrementoWidth * i;
-                bloco.posY1 = 90;
-                bloco.posX2 = 103 + incrementoWidth * i;
-                bloco.posY2 = 180;
-                bloco.linhaDoBloco = (*numeroDaLinha);
-                bloco.item = true;
-                bloco.descerItem = false;
-                bloco.blinkItem = 0;
-                insereFinalDaListaBlocos(lista, bloco);
-            }
         }
     }
 }
@@ -161,7 +151,7 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
     }
 }
 
-void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *numeroDaLinha) {
+void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score) {
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL) {
         if (aux->bloco.descerItem == true) {
@@ -175,14 +165,14 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
 
     if (((*descerBlocos) == true) && ((*atirouBola) == false)) {
         aux = lista->ponteiroInicio;
-        for (int i = 1; i <= (*numeroDaLinha); i++) {
+        for (int i = 1; i <= (*score); i++) {
             while ((aux != NULL) && (aux->bloco.linhaDoBloco == i)) {
                 aux->bloco.posY1 += 100;
                 aux->bloco.posY2 += 100;
                 aux = aux->proximo;
             }
         }
-        preencheLinhaBlocos(lista, numeroDaLinha);
+        preencheLinhaBlocos(lista, score);
         (*descerBlocos) = false;
     }
 }

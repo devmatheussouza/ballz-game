@@ -3,24 +3,24 @@
 #include "Blocos.h"
 
 typedef struct {
-  bool viva;
-  double posX;
-  double posY;
-  double speedX;
-  double speedY;
-  bool bolaReferencia;  // primeira bola a chegar no final da tela;
-  bool shooted;
+    bool viva;
+    double posX;
+    double posY;
+    double speedX;
+    double speedY;
+    bool bolaReferencia;  // primeira bola a chegar no final da tela;
+    bool shooted;
 } Bola;
 
 struct Elemento {
-  struct Elemento *anterior;
-  Bola bola;
-  struct Elemento *proximo;
+    struct Elemento *anterior;
+    Bola bola;
+    struct Elemento *proximo;
 };
 typedef struct Elemento ElementoDaLista;
 
 typedef struct {
-  ElementoDaLista *ponteiroInicio;
+    ElementoDaLista *ponteiroInicio;
 } ListaBolas;
 
 ListaBolas *criaListaBolas();
@@ -32,6 +32,5 @@ Bola criaBola();
 void drawBolas(ListaBolas *lista);
 void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xReferencia);
 void updateBolas(ListaBolas *lista);
-void colisaoBolas(ListaBolas *lista, bool *atirouBola, ListaBlocos *listaBlocos, int *scoreAtual, int *qntBolasAdicionadas,
-                  int *qntBolasMortas);
+void colisaoBolas(ListaBolas *lista, bool *atirouBola, ListaBlocos *listaBlocos, int *qntBolasAdicionadas, int *qntBolasMortas);
 void atiraBolas(ListaBolas *lista, double x_mouse, double y_mouse);

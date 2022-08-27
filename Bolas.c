@@ -16,7 +16,7 @@
 #define RES_WIDTH 800
 #define RES_HEIGHT 960
 #define RAIO 8
-#define SPEED 8.0
+#define SPEED 10
 #define HEIGHT_LANCAMENTO 950
 
 int quantidadeBolasMortas = 0;
@@ -157,23 +157,22 @@ void updateBolas(ListaBolas *lista) {
     }
 }
 
-void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBlocos, int *scoreAtual, int *qntBolasAdicionadas,
-                  int *qntBolasMortas) {
+void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBlocos, int *qntBolasAdicionadas, int *qntBolasMortas) {
     int dist = RAIO;
     ElementoDaListaBloco *auxBloco = listaBlocos->ponteiroInicio;
     ElementoDaLista *aux = listaBolas->ponteiroInicio;
 
     while (aux != NULL && ((*atirouBola) == true)) {
         if (aux->bola.viva == true) {
-            if ((aux->bola.posX >= RES_WIDTH - RAIO) || (aux->bola.posX <= RAIO)) aux->bola.speedX *= -1;
+            if ((aux->bola.posX > RES_WIDTH - SPEED) || (aux->bola.posX < SPEED)) aux->bola.speedX *= -1;
 
-            if ((aux->bola.posY <= RAIO)) aux->bola.speedY *= -1;
+            if ((aux->bola.posY < SPEED)) aux->bola.speedY *= -1;
 
             while (auxBloco != NULL) {
                 if (auxBloco->bloco.item == true)
                     dist = 0;
                 else
-                    dist = RAIO;
+                    dist = SPEED;
 
                 if ((auxBloco->bloco.vidas > 0) && (aux->bola.posX + dist >= auxBloco->bloco.posX1) &&
                     (aux->bola.posX - dist <= auxBloco->bloco.posX2) && (aux->bola.posY + dist >= auxBloco->bloco.posY1) &&
@@ -187,10 +186,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
 
                     if (aux->bola.posY > auxBloco->bloco.posY2 || aux->bola.posY < auxBloco->bloco.posY1) aux->bola.speedY *= -1;
 
-                    if (auxBloco->bloco.vidas >= 1) {
-                        (auxBloco->bloco.vidas)--;
-                        if (auxBloco->bloco.vidas == 0) (*scoreAtual)++;
-                    }
+                    if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
                 }
                 auxBloco = auxBloco->proximo;
             }
