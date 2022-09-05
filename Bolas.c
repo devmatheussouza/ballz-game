@@ -17,7 +17,7 @@
 #define RES_HEIGHT 960
 #define RAIO 8
 #define SPEED 10
-#define HEIGHT_LANCAMENTO 950
+#define HEIGHT_LANCAMENTO 800
 
 int quantidadeBolasMortas = 0;
 bool primeiraBolaMorta = false, flagTodasMorreram = false;
@@ -85,7 +85,7 @@ Bola criaBola() {
     Bola novaBola;
     novaBola.viva = false;
     novaBola.posX = RES_WIDTH / 2;
-    novaBola.posY = RES_HEIGHT - 2 * RAIO;
+    novaBola.posY = HEIGHT_LANCAMENTO - RAIO;
     novaBola.speedX = -SPEED;
     novaBola.speedY = SPEED;
     novaBola.bolaReferencia = false;
@@ -102,7 +102,7 @@ void drawBolas(ListaBolas *lista) {
 }
 
 void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xReferencia) {
-    double yDist = (HEIGHT_LANCAMENTO - yMouse) / 10;
+    double yDist = (HEIGHT_LANCAMENTO - yMouse - RAIO) / 10;
     double xDist = (xMouse - xReferencia) / 10;
     double raio = RAIO;
 
@@ -116,19 +116,21 @@ void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xRefe
 
     ElementoDaLista *aux = lista->ponteiroInicio;
     while (aux != NULL) {
-        if (aux->anterior == NULL) {
-            aux->bola.posX = xReferencia + xDist;
-            aux->bola.posY = HEIGHT_LANCAMENTO - yDist;
+        if (yMouse < HEIGHT_LANCAMENTO) {
+            if (aux->anterior == NULL) {
+                aux->bola.posX = xReferencia + xDist;
+                aux->bola.posY = HEIGHT_LANCAMENTO - RAIO - yDist;
 
-            if (yDist < 30)
+                // if (yDist < 30)
                 al_draw_filled_circle(aux->bola.posX, aux->bola.posY, raio, al_map_rgb(255, 255, 255));
-            else
-                al_draw_filled_triangle(aux->bola.posX, aux->bola.posY, xReferencia - 10, HEIGHT_LANCAMENTO - 12, xReferencia + 10,
-                                        HEIGHT_LANCAMENTO - 12, al_map_rgb(255, 255, 255));
-        } else {
-            aux->bola.posX = aux->anterior->bola.posX + xDist;
-            aux->bola.posY = aux->anterior->bola.posY - yDist;
-            al_draw_filled_circle(aux->bola.posX, aux->bola.posY, raio, al_map_rgb(255, 255, 255));
+                // else
+                //     al_draw_filled_triangle(aux->bola.posX, aux->bola.posY, xReferencia - 10, HEIGHT_LANCAMENTO - 12, xReferencia + 10,
+                //                             HEIGHT_LANCAMENTO - 12, al_map_rgb(255, 255, 255));
+            } else {
+                aux->bola.posX = aux->anterior->bola.posX + xDist;
+                aux->bola.posY = aux->anterior->bola.posY - yDist;
+                al_draw_filled_circle(aux->bola.posX, aux->bola.posY, raio, al_map_rgb(255, 255, 255));
+            }
         }
         aux = aux->proximo;
     }
@@ -142,7 +144,7 @@ void updateBolas(ListaBolas *lista) {
                 aux->bola.posX += aux->bola.speedX;
                 aux->bola.posY += aux->bola.speedY;
             } else {
-                if ((abs(aux->bola.posX - aux->anterior->bola.posX) > 40 || abs(aux->bola.posY - aux->anterior->bola.posY) > 40) &&
+                if ((abs(aux->bola.posX - aux->anterior->bola.posX) >= 30 || abs(aux->bola.posY - aux->anterior->bola.posY) >= 30) &&
                     aux->bola.shooted == false)
                     aux->bola.shooted = true;
 
@@ -164,9 +166,10 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
 
     while (aux != NULL && ((*atirouBola) == true)) {
         if (aux->bola.viva == true) {
-            if ((aux->bola.posX > RES_WIDTH - SPEED) || (aux->bola.posX < SPEED)) aux->bola.speedX *= -1;
+            if ((aux->bola.posX > RES_WIDTH - SPEED && aux->bola.speedX > 0) || (aux->bola.posX < SPEED && aux->bola.speedX < 0))
+                aux->bola.speedX *= -1;
 
-            if ((aux->bola.posY < SPEED)) aux->bola.speedY *= -1;
+            if ((aux->bola.posY < 160 + RAIO && aux->bola.speedY < 0)) aux->bola.speedY *= -1;
 
             while (auxBloco != NULL) {
                 if (auxBloco->bloco.item == true)
@@ -191,7 +194,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                 auxBloco = auxBloco->proximo;
             }
 
-            if ((aux->bola.posY > HEIGHT_LANCAMENTO)) {
+            if ((aux->bola.posY > HEIGHT_LANCAMENTO - RAIO)) {
                 if (primeiraBolaMorta == false) {
                     posX_Ref = aux->bola.posX;
                     primeiraBolaMorta = true;

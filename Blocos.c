@@ -14,7 +14,7 @@
 #include "Bolas.h"
 
 #define QNT_BLOCOS 8
-#define HEIGHT_LANCAMENTO 950
+#define HEIGHT_LANCAMENTO 800
 #define RAIO 8
 
 int desenhoItem = 0;
@@ -78,7 +78,7 @@ bool insereFinalDaListaBlocos(ListaBlocos *lista, Blocos bloco) {
 
 void preencheLinhaBlocos(ListaBlocos *lista, int *score) {
     (*score)++;
-    int probGerarBloco, qntDeVida, incrementoWidth = 98;
+    int probGerarBloco, qntDeVida, incrementoWidth = 99;
     Blocos bloco;
     int posicaoItem = numAleatorio(0, QNT_BLOCOS - 1);
 
@@ -95,9 +95,9 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *score) {
 
         if (i == posicaoItem || probGerarBloco <= 50) {
             bloco.posX1 = 13 + incrementoWidth * i;
-            bloco.posY1 = 50;
-            bloco.posX2 = 103 + incrementoWidth * i;
-            bloco.posY2 = 140;
+            bloco.posY1 = 160;
+            bloco.posX2 = 93 + incrementoWidth * i;
+            bloco.posY2 = 240;
             bloco.linhaDoBloco = (*score);
             bloco.descerItem = false;
             bloco.blinkItem = 0;
@@ -128,7 +128,7 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
                 color = al_map_rgb(255, 15, 142);
             }
             al_draw_filled_rectangle(aux->bloco.posX1, aux->bloco.posY1, aux->bloco.posX2, aux->bloco.posY2, color);
-            al_draw_textf(fonts, al_map_rgb(0, 0, 0), aux->bloco.posX1 + 45, aux->bloco.posY1 + 35, ALLEGRO_ALIGN_CENTRE, "%d",
+            al_draw_textf(fonts, al_map_rgb(0, 0, 0), aux->bloco.posX1 + 40, aux->bloco.posY1 + 30, ALLEGRO_ALIGN_CENTRE, "%d",
                           aux->bloco.vidas);
         }
 
@@ -167,8 +167,8 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
         aux = lista->ponteiroInicio;
         for (int i = 1; i <= (*score); i++) {
             while ((aux != NULL) && (aux->bloco.linhaDoBloco == i)) {
-                aux->bloco.posY1 += 100;
-                aux->bloco.posY2 += 100;
+                aux->bloco.posY1 += 90;
+                aux->bloco.posY2 += 90;
                 aux = aux->proximo;
             }
         }

@@ -18,7 +18,7 @@
 #define KEY_RELEASED 2
 #define RAIO 8
 #define INCREMENT_HEIGHT 70
-#define HEIGHT_LANCAMENTO 950
+#define HEIGHT_LANCAMENTO 800
 
 // Estados
 enum STATES { MENU = 1, PLAYING, GAMEOVER, SCORES, PAUSE };
@@ -47,7 +47,9 @@ int main() {
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
     ALLEGRO_FONT *font28 = NULL, *font32 = NULL, *font40 = NULL;
     ALLEGRO_FONT *font60 = NULL, *font80 = NULL, *font140 = NULL;
-    ALLEGRO_BITMAP *nota_musical = NULL;
+    ALLEGRO_BITMAP *audioLigado = NULL;
+    ALLEGRO_BITMAP *audioDesligado = NULL;
+    ALLEGRO_BITMAP *score = NULL;
 
     // Inicialization
     must_init(display, "Display");
@@ -60,7 +62,9 @@ int main() {
     must_init(al_install_keyboard(), "Keyboard");
     must_init(al_install_mouse(), "Mouse");
     al_set_window_title(display, "BALLZ");
-    nota_musical = al_load_bitmap("./images/nota-musical.png");
+    audioLigado = al_load_bitmap("./images/audioLigado.jpg");
+    audioDesligado = al_load_bitmap("./images/audioDesligado.jpg");
+    score = al_load_bitmap("./images/score.jpg");
     font28 = al_load_font("./fonts/creHappiness.ttf", 28, 0);
     font32 = al_load_font("./fonts/creHappiness.ttf", 32, 0);
     font40 = al_load_font("./fonts/creHappiness.ttf", 40, 0);
@@ -163,14 +167,14 @@ int main() {
                     estadoAtual = PLAYING;
                 }
 
-                if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 560) && (mouseY <= 630) && (estadoAtual == MENU))
+                if ((ev.mouse.button & 1) && (mouseX >= 470) && (mouseX <= 570) && (mouseY >= 640) && (mouseY <= 750) && (estadoAtual == MENU))
                     estadoAtual = SCORES;
 
-                if ((ev.mouse.button & 1) && (mouseX >= 340) && (mouseX <= 460) && (mouseY >= 700) && (mouseY <= 820) && (estadoAtual == MENU) &&
+                if ((ev.mouse.button & 1) && (mouseX >= 230) && (mouseX <= 330) && (mouseY >= 640) && (mouseY <= 750) && (estadoAtual == MENU) &&
                     (tocandoMusicaMenu == false))
                     clickDesativarMusicaMenu = false;
 
-                if ((ev.mouse.button & 1) && (mouseX >= 340) && (mouseX <= 460) && (mouseY >= 700) && (mouseY <= 820) && (estadoAtual == MENU) &&
+                if ((ev.mouse.button & 1) && (mouseX >= 230) && (mouseX <= 330) && (mouseY >= 640) && (mouseY <= 750) && (estadoAtual == MENU) &&
                     (tocandoMusicaMenu == true))
                     clickDesativarMusicaMenu = true;
 
@@ -228,7 +232,7 @@ int main() {
                             break;
 
                         case PLAYING:
-                            if (listaBlocos->ponteiroInicio->bloco.posY2 < (RES_HEIGHT - 60)) {
+                            if (listaBlocos->ponteiroInicio->bloco.posY2 < (HEIGHT_LANCAMENTO - 80)) {
                                 updateBlocos(listaBlocos, &descerBloco, &atirouBola, &scoreAtual);
                                 updateBolas(listaBolas);
                                 colisaoBolas(listaBolas, &atirouBola, listaBlocos, &qntBolasAdicionadas, &qntBolasMortas);
@@ -274,22 +278,26 @@ int main() {
                     al_draw_text(font140, al_map_rgba(0, 164, 149, 255), 432, 151, 0, "l");
                     al_draw_text(font140, al_map_rgba(128, 199, 67, 255), 453, 150, 0, "z");
                     al_draw_filled_rounded_rectangle(250, 450, 550, 520, 35, 35, al_map_rgba(234, 35, 95, 255));
-                    al_draw_filled_rounded_rectangle(250, 560, 550, 630, 35, 35, al_map_rgba(22, 117, 187, 255));
                     al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 468, ALLEGRO_ALIGN_CENTRE, "PLAY");
-                    al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 578, ALLEGRO_ALIGN_CENTRE, "SCORES");
-                    al_draw_circle(RES_WIDTH / 2, RES_HEIGHT - 200, 60, al_map_rgb(240, 0, 240), 2);
-                    al_draw_bitmap(nota_musical, (RES_WIDTH / 2) - 44, RES_HEIGHT - 240, 0);
-                    if (clickDesativarMusicaMenu == true) al_draw_line(360, 718, 445, 802, al_map_rgb(255, 0, 0), 3);
+                    al_draw_bitmap(score, (RES_WIDTH / 2) - 10, RES_HEIGHT - 400, 0);
+                    if (clickDesativarMusicaMenu == true) {
+                        al_draw_bitmap(audioDesligado, (RES_WIDTH / 2) - 250, RES_HEIGHT - 400, 0);
+                    } else {
+                        al_draw_bitmap(audioLigado, (RES_WIDTH / 2) - 250, RES_HEIGHT - 400, 0);
+                    }
                     break;
 
                 case PLAYING:
-                    al_draw_textf(font32, al_map_rgb(255, 255, 255), 10, 15, 0, "Score: %d", scoreAtual);
+                    al_draw_filled_rectangle(0, 160, RES_WIDTH, 800, al_map_rgb(0, 0, 0));
+                    al_draw_text(font28, al_map_rgb(255, 255, 255), 10, 15, 0, "BEST");
+                    al_draw_text(font40, al_map_rgb(255, 255, 255), 15, 45, 0, "80");
+                    al_draw_textf(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, 15, ALLEGRO_ALIGN_CENTRE, "%d", scoreAtual);
                     drawBlocos(listaBlocos, font28);
                     if (atirouBola == true) {
                         drawBolas(listaBolas);
                     } else {
                         clickPlay = true;
-                        al_draw_filled_circle(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO, RAIO, al_map_rgb(255, 0, 50));
+                        al_draw_filled_circle(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO - RAIO, RAIO, al_map_rgb(255, 0, 50));
                         drawMiraBolas(listaBolasMira, mouseX, mouseY, listaBolas->ponteiroInicio->bola.posX);
                         if (abs(listaBolas->ponteiroInicio->bola.posX - RES_WIDTH) < 50) {
                             al_draw_textf(font28, al_map_rgb(255, 255, 255), listaBolas->ponteiroInicio->bola.posX - 40,
@@ -328,7 +336,7 @@ int main() {
             }
 
             al_flip_display();
-            al_clear_to_color(al_map_rgb(0, 0, 0));
+            al_clear_to_color(al_map_rgb(31, 31, 31));
         }
     }
 
@@ -338,7 +346,9 @@ int main() {
 
     liberaListaBolas(listaBolasMira);
 
-    al_destroy_bitmap(nota_musical);
+    al_destroy_bitmap(audioLigado);
+    al_destroy_bitmap(audioDesligado);
+    al_destroy_bitmap(score);
     al_destroy_sample(menuSong);
     al_destroy_font(font28);
     al_destroy_font(font32);
