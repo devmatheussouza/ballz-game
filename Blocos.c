@@ -151,7 +151,7 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
     }
 }
 
-void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score) {
+void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score, int *estadoAtual) {
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL) {
         if (aux->bloco.descerItem == true) {
@@ -169,6 +169,9 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
             while ((aux != NULL) && (aux->bloco.linhaDoBloco == i)) {
                 aux->bloco.posY1 += 90;
                 aux->bloco.posY2 += 90;
+                if (aux->bloco.posY2 >= HEIGHT_LANCAMENTO - 80 && aux->bloco.vidas > 0) {
+                    *estadoAtual = 3;
+                }
                 aux = aux->proximo;
             }
         }
