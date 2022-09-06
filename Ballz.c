@@ -167,25 +167,28 @@ int main() {
                     estadoAtual = PLAYING;
                 }
 
-                if ((ev.mouse.button & 1) && (mouseX >= 470) && (mouseX <= 570) && (mouseY >= 640) && (mouseY <= 750) && (estadoAtual == MENU))
+                if ((ev.mouse.button & 1) && (mouseX >= 470) && (mouseX <= 570) && (mouseY >= 640) && (mouseY <= 750) &&
+                    (estadoAtual == MENU))
                     estadoAtual = SCORES;
 
-                if ((ev.mouse.button & 1) && (mouseX >= 230) && (mouseX <= 330) && (mouseY >= 640) && (mouseY <= 750) && (estadoAtual == MENU) &&
-                    (tocandoMusicaMenu == false))
+                if ((ev.mouse.button & 1) && (mouseX >= 230) && (mouseX <= 330) && (mouseY >= 640) && (mouseY <= 750) &&
+                    (estadoAtual == MENU) && (tocandoMusicaMenu == false))
                     clickDesativarMusicaMenu = false;
 
-                if ((ev.mouse.button & 1) && (mouseX >= 230) && (mouseX <= 330) && (mouseY >= 640) && (mouseY <= 750) && (estadoAtual == MENU) &&
-                    (tocandoMusicaMenu == true))
+                if ((ev.mouse.button & 1) && (mouseX >= 230) && (mouseX <= 330) && (mouseY >= 640) && (mouseY <= 750) &&
+                    (estadoAtual == MENU) && (tocandoMusicaMenu == true))
                     clickDesativarMusicaMenu = true;
 
                 if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 570) && (mouseY <= 640) &&
                     (estadoAtual == GAMEOVER))
                     estadoAtual = MENU;
 
-                if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 360) && (mouseY <= 430) && (estadoAtual == PAUSE))
+                if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 360) && (mouseY <= 430) &&
+                    (estadoAtual == PAUSE))
                     estadoAtual = PLAYING;
 
-                if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 580) && (mouseY <= 650) && (estadoAtual == PAUSE))
+                if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 580) && (mouseY <= 650) &&
+                    (estadoAtual == PAUSE))
                     estadoAtual = MENU;
                 break;
 
@@ -236,8 +239,6 @@ int main() {
                                 updateBlocos(listaBlocos, &descerBloco, &atirouBola, &scoreAtual);
                                 updateBolas(listaBolas);
                                 colisaoBolas(listaBolas, &atirouBola, listaBlocos, &qntBolasAdicionadas, &qntBolasMortas);
-                            } else {
-                                estadoAtual = GAMEOVER;
                             }
 
                             if (key[ALLEGRO_KEY_ESCAPE]) estadoAtual = PAUSE;
@@ -297,7 +298,8 @@ int main() {
                         drawBolas(listaBolas);
                     } else {
                         clickPlay = true;
-                        al_draw_filled_circle(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO - RAIO, RAIO, al_map_rgb(255, 0, 50));
+                        al_draw_filled_circle(listaBolas->ponteiroInicio->bola.posX, HEIGHT_LANCAMENTO - RAIO, RAIO,
+                                              al_map_rgb(255, 0, 50));
                         drawMiraBolas(listaBolasMira, mouseX, mouseY, listaBolas->ponteiroInicio->bola.posX);
                         if (abs(listaBolas->ponteiroInicio->bola.posX - RES_WIDTH) < 50) {
                             al_draw_textf(font28, al_map_rgb(255, 255, 255), listaBolas->ponteiroInicio->bola.posX - 40,
@@ -310,7 +312,8 @@ int main() {
                     break;
 
                 case PAUSE:
-                    al_draw_text(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 220, ALLEGRO_ALIGN_CENTRE, "PAUSE");
+                    al_draw_text(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 220, ALLEGRO_ALIGN_CENTRE,
+                                 "PAUSE");
                     al_draw_filled_rounded_rectangle(250, 360, 550, 430, 35, 35, al_map_rgba(234, 35, 95, 255));
                     al_draw_filled_rounded_rectangle(250, 470, 550, 540, 35, 35, al_map_rgba(249, 151, 49, 255));
                     al_draw_filled_rounded_rectangle(250, 580, 550, 650, 35, 35, al_map_rgba(0, 164, 149, 255));
@@ -320,8 +323,10 @@ int main() {
                     break;
 
                 case GAMEOVER:
-                    al_draw_textf(font80, al_map_rgb(249, 181, 49), RES_WIDTH / 2, RES_HEIGHT / 2 - 220, ALLEGRO_ALIGN_CENTRE, "%d", scoreAtual);
-                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 150, ALLEGRO_ALIGN_CENTRE, "BEST 80");
+                    al_draw_textf(font80, al_map_rgb(249, 181, 49), RES_WIDTH / 2, RES_HEIGHT / 2 - 220, ALLEGRO_ALIGN_CENTRE, "%d",
+                                  scoreAtual);
+                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 150, ALLEGRO_ALIGN_CENTRE,
+                                 "BEST 80");
                     al_draw_filled_rounded_rectangle(250, 460, 550, 530, 35, 35, al_map_rgba(234, 35, 95, 255));
                     al_draw_filled_rounded_rectangle(250, 570, 550, 640, 35, 35, al_map_rgba(0, 164, 149, 255));
                     al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 478, ALLEGRO_ALIGN_CENTRE, "REPLAY");
@@ -329,7 +334,8 @@ int main() {
                     break;
 
                 case SCORES:
-                    al_draw_text(font40, al_map_rgba(255, 255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2, ALLEGRO_ALIGN_CENTRE, "TELA DE SCORES");
+                    al_draw_text(font40, al_map_rgba(255, 255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2, ALLEGRO_ALIGN_CENTRE,
+                                 "TELA DE SCORES");
                     al_draw_text(font40, al_map_rgba(255, 255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 + 30, ALLEGRO_ALIGN_CENTRE,
                                  "PRESS ESC TO BACK TO MENU");
                     break;

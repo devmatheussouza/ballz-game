@@ -124,7 +124,8 @@ void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xRefe
                 // if (yDist < 30)
                 al_draw_filled_circle(aux->bola.posX, aux->bola.posY, raio, al_map_rgb(255, 255, 255));
                 // else
-                //     al_draw_filled_triangle(aux->bola.posX, aux->bola.posY, xReferencia - 10, HEIGHT_LANCAMENTO - 12, xReferencia + 10,
+                //     al_draw_filled_triangle(aux->bola.posX, aux->bola.posY, xReferencia - 10, HEIGHT_LANCAMENTO - 12, xReferencia +
+                //     10,
                 //                             HEIGHT_LANCAMENTO - 12, al_map_rgb(255, 255, 255));
             } else {
                 aux->bola.posX = aux->anterior->bola.posX + xDist;
@@ -160,7 +161,7 @@ void updateBolas(ListaBolas *lista) {
 }
 
 void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBlocos, int *qntBolasAdicionadas, int *qntBolasMortas) {
-    int dist = RAIO;
+    int dist;
     ElementoDaListaBloco *auxBloco = listaBlocos->ponteiroInicio;
     ElementoDaLista *aux = listaBolas->ponteiroInicio;
 
@@ -172,25 +173,81 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
             if ((aux->bola.posY < 160 + RAIO && aux->bola.speedY < 0)) aux->bola.speedY *= -1;
 
             while (auxBloco != NULL) {
-                if (auxBloco->bloco.item == true)
-                    dist = 0;
-                else
-                    dist = SPEED;
+                // if (auxBloco->bloco.item == true) {
+                //     dist = 0;
+                // } else {
+                dist = SPEED;
+                // }
 
-                if ((auxBloco->bloco.vidas > 0) && (aux->bola.posX + dist >= auxBloco->bloco.posX1) &&
-                    (aux->bola.posX - dist <= auxBloco->bloco.posX2) && (aux->bola.posY + dist >= auxBloco->bloco.posY1) &&
-                    (aux->bola.posY - dist <= auxBloco->bloco.posY2)) {
-                    if (auxBloco->bloco.item == true) {
-                        auxBloco->bloco.descerItem = true;
-                        (*qntBolasAdicionadas)++;
+                // if ((auxBloco->bloco.vidas > 0) && (aux->bola.posX + dist >= auxBloco->bloco.posX1) &&
+                //     (aux->bola.posX - dist <= auxBloco->bloco.posX2) && (aux->bola.posY + dist >= auxBloco->bloco.posY1) &&
+                //     (aux->bola.posY - dist <= auxBloco->bloco.posY2)) {
+                //     if (auxBloco->bloco.item == true) {
+                //         auxBloco->bloco.descerItem = true;
+                //         (*qntBolasAdicionadas)++;
+                //     }
+
+                //     if (aux->bola.posX > auxBloco->bloco.posX2 || aux->bola.posX < auxBloco->bloco.posX1) aux->bola.speedX *= -1;
+
+                //     if (aux->bola.posY > auxBloco->bloco.posY2 || aux->bola.posY < auxBloco->bloco.posY1) aux->bola.speedY *= -1;
+
+                //     if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
+                // }
+
+                if (auxBloco->bloco.vidas > 0) {
+                    // A1
+                    if ((aux->bola.posX >= auxBloco->bloco.posX1 - dist && aux->bola.posX <= auxBloco->bloco.posX2 + dist) &&
+                        ((aux->bola.posY <= auxBloco->bloco.posY1 && aux->bola.posY >= auxBloco->bloco.posY1 - dist) &&
+                         (aux->bola.speedY > 0))) {
+                        if (auxBloco->bloco.item == true) {
+                            auxBloco->bloco.descerItem = true;
+                            (*qntBolasAdicionadas)++;
+                        } else {
+                            aux->bola.speedY *= -1;
+                        }
+                        if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
                     }
 
-                    if (aux->bola.posX > auxBloco->bloco.posX2 || aux->bola.posX < auxBloco->bloco.posX1) aux->bola.speedX *= -1;
+                    // A3
+                    if ((aux->bola.posX >= auxBloco->bloco.posX1 - dist && aux->bola.posX <= auxBloco->bloco.posX2 + dist) &&
+                        ((aux->bola.posY >= auxBloco->bloco.posY2 && aux->bola.posY <= auxBloco->bloco.posY2 + dist) &&
+                         (aux->bola.speedY < 0))) {
+                        if (auxBloco->bloco.item == true) {
+                            auxBloco->bloco.descerItem = true;
+                            (*qntBolasAdicionadas)++;
+                        } else {
+                            aux->bola.speedY *= -1;
+                        }
+                        if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
+                    }
 
-                    if (aux->bola.posY > auxBloco->bloco.posY2 || aux->bola.posY < auxBloco->bloco.posY1) aux->bola.speedY *= -1;
+                    // A2
+                    if ((aux->bola.posY >= auxBloco->bloco.posY1 - dist && aux->bola.posY <= auxBloco->bloco.posY2 + dist) &&
+                        (aux->bola.posX >= auxBloco->bloco.posX1 - dist && aux->bola.posX <= auxBloco->bloco.posX1) &&
+                        (aux->bola.speedX > 0)) {
+                        if (auxBloco->bloco.item == true) {
+                            auxBloco->bloco.descerItem = true;
+                            (*qntBolasAdicionadas)++;
+                        } else {
+                            aux->bola.speedX *= -1;
+                        }
+                        if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
+                    }
 
-                    if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
+                    // A4
+                    if ((aux->bola.posY >= auxBloco->bloco.posY1 - dist && aux->bola.posY <= auxBloco->bloco.posY2 + dist) &&
+                        ((aux->bola.posX >= auxBloco->bloco.posX2 && aux->bola.posX <= auxBloco->bloco.posX2 + dist) &&
+                         (aux->bola.speedX < 0))) {
+                        if (auxBloco->bloco.item == true) {
+                            auxBloco->bloco.descerItem = true;
+                            (*qntBolasAdicionadas)++;
+                        } else {
+                            aux->bola.speedX *= -1;
+                        }
+                        if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
+                    }
                 }
+
                 auxBloco = auxBloco->proximo;
             }
 
