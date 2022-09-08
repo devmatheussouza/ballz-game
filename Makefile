@@ -11,7 +11,7 @@ debug: CFLAGS += -g -D__DEBUG__
 
 all debug: $(PROGS)
 
-$(PROGS) : % : %.o Bolas.o Blocos.o
+$(PROGS) : % : %.o Bolas.o Blocos.o libScore.o
 	$(CC) $(CFLAGS) -o  $@ $^ $(LFLAGS) -lm
 
 clean:

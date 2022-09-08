@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "Bolas.h"
+#include "libScore.h"
 
 #define QNT_BLOCOS 8
 #define HEIGHT_LANCAMENTO 800
@@ -152,6 +153,7 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
 }
 
 void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score, int *estadoAtual) {
+    bool acabou = false;
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL) {
         if (aux->bloco.descerItem == true) {
@@ -165,17 +167,20 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
 
     if (((*descerBlocos) == true) && ((*atirouBola) == false)) {
         aux = lista->ponteiroInicio;
-        for (int i = 1; i <= (*score); i++) {
+        for (int i = 1; i <= (*score) && acabou == false; i++) {
             while ((aux != NULL) && (aux->bloco.linhaDoBloco == i)) {
                 aux->bloco.posY1 += 90;
                 aux->bloco.posY2 += 90;
                 if (aux->bloco.posY2 >= HEIGHT_LANCAMENTO - 80 && aux->bloco.vidas > 0) {
                     *estadoAtual = 3;
+                    salvaScore(*score);
+                    acabou = true;
+                    break;
                 }
                 aux = aux->proximo;
             }
         }
-        preencheLinhaBlocos(lista, score);
+        if (acabou == false) preencheLinhaBlocos(lista, score);
         (*descerBlocos) = false;
     }
 }

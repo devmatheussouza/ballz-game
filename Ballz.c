@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "Bolas.h"
+#include "libScore.h"
 
 #define RES_WIDTH 800
 #define RES_HEIGHT 960
@@ -32,10 +33,14 @@ int main() {
 
     bool redraw = true, fimDoGame = false;
     bool tocandoMusicaMenu = true, clickDesativarMusicaMenu = false;
-    bool atirouBola = false, clickPlay = false, descerBloco = false;
+    bool atirouBola = false, clickPlay = false, descerBloco = false, atualizarScore = true, arqExiste;
+    bool atualizacaoScoreGameOver = true;
     double mouseX, mouseY;
     int estadoAtual = MENU, scoreAtual = 0;
     int qntBolasAdicionadas = 0, qntBolasMortas = 0;
+    int qntScores = 0, limite = 0;
+    Score *scores;
+    arqExiste = verificaExistenciaArquivo();
 
     // Allegro variables
     must_init(al_init(), "Allegro");
@@ -94,6 +99,14 @@ int main() {
 
     ListaBolas *listaBolasMira = criaListaBolas();
     for (int i = 0; i < 10; i++) insereFinalDaListaBolas(listaBolasMira);
+
+    if (arqExiste) {
+        scores = leituraScores(&qntScores);
+        if (qntScores < 10)
+            limite = qntScores;
+        else
+            limite = 10;
+    }
 
     // Register event source;
     al_register_event_source(event_queue, al_get_display_event_source(display));
@@ -187,6 +200,9 @@ int main() {
 
                 if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 580) && (mouseY <= 650) && (estadoAtual == PAUSE))
                     estadoAtual = MENU;
+
+                if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 780) && (mouseY <= 840) && (estadoAtual == SCORES))
+                    estadoAtual = MENU;
                 break;
 
             case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -236,6 +252,7 @@ int main() {
                             updateBolas(listaBolas);
                             colisaoBolas(listaBolas, &atirouBola, listaBlocos, &qntBolasAdicionadas, &qntBolasMortas);
 
+                            if (atualizacaoScoreGameOver == false) atualizacaoScoreGameOver = true;
                             if (key[ALLEGRO_KEY_ESCAPE]) estadoAtual = PAUSE;
                             break;
 
@@ -247,10 +264,33 @@ int main() {
                             break;
 
                         case GAMEOVER:
+                            arqExiste = verificaExistenciaArquivo();
+                            atualizarScore = true;
+                            if (atualizacaoScoreGameOver == true) {
+                                if (arqExiste) {
+                                    scores = leituraScores(&qntScores);
+                                    if (qntScores < 10)
+                                        limite = qntScores;
+                                    else
+                                        limite = 10;
+                                }
+                                atualizacaoScoreGameOver = false;
+                            }
                             if (key[ALLEGRO_KEY_ENTER]) fimDoGame = true;
                             break;
 
                         case SCORES:
+                            arqExiste = verificaExistenciaArquivo();
+                            if (atualizarScore == true) {
+                                if (arqExiste) {
+                                    scores = leituraScores(&qntScores);
+                                    if (qntScores < 10)
+                                        limite = qntScores;
+                                    else
+                                        limite = 10;
+                                }
+                                atualizarScore = false;
+                            }
                             if (key[ALLEGRO_KEY_ESCAPE]) estadoAtual = MENU;
                             break;
                     }
@@ -267,7 +307,7 @@ int main() {
 
             switch (estadoAtual) {
                 case MENU:
-                    al_draw_textf(font32, al_map_rgb(255, 255, 255), 20, 20, 0, "Pos x: %.2f Pos y: %.2f", mouseX, mouseY);
+                    // al_draw_textf(font32, al_map_rgb(255, 255, 255), 20, 20, 0, "Pos x: %.2f Pos y: %.2f", mouseX, mouseY);
                     al_draw_text(font140, al_map_rgba(235, 34, 95, 255), 272, 150, 0, "B");
                     al_draw_text(font140, al_map_rgba(249, 181, 49, 255), 343, 149, 0, "a");
                     al_draw_text(font140, al_map_rgba(22, 114, 190, 255), 414, 151, 0, "l");
@@ -286,7 +326,10 @@ int main() {
                 case PLAYING:
                     al_draw_filled_rectangle(0, 160, RES_WIDTH, 800, al_map_rgb(0, 0, 0));
                     al_draw_text(font28, al_map_rgb(255, 255, 255), 10, 15, 0, "BEST");
-                    al_draw_text(font40, al_map_rgb(255, 255, 255), 15, 45, 0, "80");
+                    if (!arqExiste)
+                        al_draw_text(font40, al_map_rgb(255, 255, 255), 20, 45, 0, "0");
+                    else
+                        al_draw_textf(font40, al_map_rgb(255, 255, 255), 18, 45, 0, "%d", scores[0].score);
                     al_draw_textf(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, 15, ALLEGRO_ALIGN_CENTRE, "%d", scoreAtual);
                     drawBlocos(listaBlocos, font28);
                     if (atirouBola == true) {
@@ -320,8 +363,14 @@ int main() {
                     break;
 
                 case GAMEOVER:
-                    al_draw_textf(font80, al_map_rgb(249, 181, 49), RES_WIDTH / 2, RES_HEIGHT / 2 - 220, ALLEGRO_ALIGN_CENTRE, "%d", scoreAtual);
-                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 150, ALLEGRO_ALIGN_CENTRE, "BEST 80");
+                    al_draw_textf(font140, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 320, ALLEGRO_ALIGN_CENTRE, "%d",
+                                  scoreAtual);
+                    if (arqExiste)
+                        al_draw_textf(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 120, ALLEGRO_ALIGN_CENTRE, "BEST %d",
+                                      scores[0].score);
+                    else
+                        al_draw_text(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 - 120, ALLEGRO_ALIGN_CENTRE, "BEST 0");
+
                     al_draw_filled_rounded_rectangle(250, 460, 550, 530, 35, 35, al_map_rgba(234, 35, 95, 255));
                     al_draw_filled_rounded_rectangle(250, 570, 550, 640, 35, 35, al_map_rgba(0, 164, 149, 255));
                     al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 478, ALLEGRO_ALIGN_CENTRE, "REPLAY");
@@ -329,9 +378,24 @@ int main() {
                     break;
 
                 case SCORES:
-                    al_draw_text(font40, al_map_rgba(255, 255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2, ALLEGRO_ALIGN_CENTRE, "TELA DE SCORES");
-                    al_draw_text(font40, al_map_rgba(255, 255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2 + 30, ALLEGRO_ALIGN_CENTRE,
-                                 "PRESS ESC TO BACK TO MENU");
+                    al_draw_text(font80, al_map_rgba(249, 151, 49, 255), RES_WIDTH / 2, 20, ALLEGRO_ALIGN_CENTRE, "TOP SCORES");
+                    al_draw_text(font60, al_map_rgba(255, 255, 255, 255), 150, 150, ALLEGRO_ALIGN_CENTRE, "POS.");
+                    al_draw_text(font60, al_map_rgba(255, 255, 255, 255), 400, 150, ALLEGRO_ALIGN_CENTRE, "SCORE");
+                    al_draw_text(font60, al_map_rgba(255, 255, 255, 255), 650, 150, ALLEGRO_ALIGN_CENTRE, "DATE");
+                    if (!arqExiste) {
+                        al_draw_text(font60, al_map_rgba(255, 255, 255, 255), RES_WIDTH / 2, RES_HEIGHT / 2, ALLEGRO_ALIGN_CENTRE,
+                                     "NO SCORES YET");
+                    } else {
+                        for (int i = 0; i < limite; i++) {
+                            al_draw_textf(font40, al_map_rgba(255, 255, 255, 255), 150, 220 + 50 * i, ALLEGRO_ALIGN_CENTRE, "%d°", i + 1);
+                            al_draw_textf(font40, al_map_rgba(255, 255, 255, 255), 400, 220 + 50 * i, ALLEGRO_ALIGN_CENTRE, "%d",
+                                          scores[i].score);
+                            al_draw_textf(font40, al_map_rgba(255, 255, 255, 255), 650, 220 + 50 * i, ALLEGRO_ALIGN_CENTRE, "%02d/%02d/%d",
+                                          scores[i].dia, scores[i].mes, scores[i].ano);
+                        }
+                    }
+                    al_draw_filled_rounded_rectangle(250, 780, 550, 850, 35, 35, al_map_rgba(0, 164, 149, 255));
+                    al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 798, ALLEGRO_ALIGN_CENTRE, "MAIN MENU");
                     break;
             }
 
@@ -345,6 +409,7 @@ int main() {
     if (listaBlocos != NULL) liberaListaBlocos(listaBlocos);
 
     liberaListaBolas(listaBolasMira);
+    free(scores);
 
     al_destroy_bitmap(audioLigado);
     al_destroy_bitmap(audioDesligado);
