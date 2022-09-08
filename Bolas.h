@@ -32,5 +32,6 @@ Bola criaBola();
 void drawBolas(ListaBolas *lista);
 void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xReferencia);
 void updateBolas(ListaBolas *lista);
-void colisaoBolas(ListaBolas *lista, bool *atirouBola, ListaBlocos *listaBlocos, int *qntBolasAdicionadas, int *qntBolasMortas);
+void colisaoBolas(ListaBolas *lista, bool *atirouBola, ListaBlocos *listaBlocos, int *qntBolasAdicionadas, int *qntBolasMortas,
+                  ALLEGRO_SAMPLE *hitBola);
 void atiraBolas(ListaBolas *lista, double x_mouse, double y_mouse);

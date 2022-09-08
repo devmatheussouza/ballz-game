@@ -1,3 +1,5 @@
+#include <allegro5/allegro_acodec.h>
+#include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <stdbool.h>
@@ -32,4 +34,5 @@ bool listaVaziaBlocos(ListaBlocos *lista);
 void preencheLinhaBlocos(ListaBlocos *lista, int *score);
 bool insereFinalDaListaBlocos(ListaBlocos *lista, Blocos bloco);
 void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *font);
-void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score, int *estadoAtual);
+void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score, int *estadoAtual, ALLEGRO_SAMPLE *pontoScore,
+                  ALLEGRO_SAMPLE *gameoverSound);

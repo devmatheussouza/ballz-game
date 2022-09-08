@@ -155,7 +155,8 @@ void updateBolas(ListaBolas *lista) {
     }
 }
 
-void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBlocos, int *qntBolasAdicionadas, int *qntBolasMortas) {
+void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBlocos, int *qntBolasAdicionadas, int *qntBolasMortas,
+                  ALLEGRO_SAMPLE *hitBola) {
     ElementoDaListaBloco *auxBloco = listaBlocos->ponteiroInicio;
     ElementoDaLista *aux = listaBolas->ponteiroInicio;
 
@@ -171,6 +172,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                     if ((aux->bola.posX >= auxBloco->bloco.posX1 - SPEED && aux->bola.posX <= auxBloco->bloco.posX2 + SPEED) &&
                         ((aux->bola.posY <= auxBloco->bloco.posY1 && aux->bola.posY >= auxBloco->bloco.posY1 - SPEED) &&
                          (aux->bola.speedY > 0))) {
+                        al_play_sample(hitBola, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                         if (auxBloco->bloco.item == true) {
                             auxBloco->bloco.descerItem = true;
                             (*qntBolasAdicionadas)++;
@@ -183,6 +185,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                     if ((aux->bola.posX >= auxBloco->bloco.posX1 - SPEED && aux->bola.posX <= auxBloco->bloco.posX2 + SPEED) &&
                         ((aux->bola.posY >= auxBloco->bloco.posY2 && aux->bola.posY <= auxBloco->bloco.posY2 + SPEED) &&
                          (aux->bola.speedY < 0))) {
+                        al_play_sample(hitBola, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                         if (auxBloco->bloco.item == true) {
                             auxBloco->bloco.descerItem = true;
                             (*qntBolasAdicionadas)++;
@@ -194,6 +197,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
 
                     if ((aux->bola.posY >= auxBloco->bloco.posY1 - SPEED && aux->bola.posY <= auxBloco->bloco.posY2 + SPEED) &&
                         (aux->bola.posX >= auxBloco->bloco.posX1 - SPEED && aux->bola.posX <= auxBloco->bloco.posX1) && (aux->bola.speedX > 0)) {
+                        al_play_sample(hitBola, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                         if (auxBloco->bloco.item == true) {
                             auxBloco->bloco.descerItem = true;
                             (*qntBolasAdicionadas)++;
@@ -206,6 +210,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                     if ((aux->bola.posY >= auxBloco->bloco.posY1 - SPEED && aux->bola.posY <= auxBloco->bloco.posY2 + SPEED) &&
                         ((aux->bola.posX >= auxBloco->bloco.posX2 && aux->bola.posX <= auxBloco->bloco.posX2 + SPEED) &&
                          (aux->bola.speedX < 0))) {
+                        al_play_sample(hitBola, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                         if (auxBloco->bloco.item == true) {
                             auxBloco->bloco.descerItem = true;
                             (*qntBolasAdicionadas)++;
@@ -219,7 +224,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                 auxBloco = auxBloco->proximo;
             }
 
-            if ((aux->bola.posY > HEIGHT_LANCAMENTO - RAIO)) {
+            if ((aux->bola.posY > HEIGHT_LANCAMENTO)) {
                 if (primeiraBolaMorta == false) {
                     posX_Ref = aux->bola.posX;
                     primeiraBolaMorta = true;
@@ -259,14 +264,16 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
 void atiraBolas(ListaBolas *lista, double x_mouse, double y_mouse) {
     double dir;
     ElementoDaLista *aux = lista->ponteiroInicio;
-    while (aux != NULL) {
-        if (aux->bola.viva == false) {
-            aux->bola.viva = true;
-            dir = atan2((y_mouse - aux->bola.posY), (x_mouse - aux->bola.posX));
-            aux->bola.speedX = SPEED * cos(dir);
-            aux->bola.speedY = SPEED * sin(dir);
-            aux->bola.posY -= 20;
+    if (y_mouse < HEIGHT_LANCAMENTO + 2 * SPEED) {
+        while (aux != NULL) {
+            if (aux->bola.viva == false) {
+                aux->bola.viva = true;
+                dir = atan2((y_mouse - aux->bola.posY), (x_mouse - aux->bola.posX));
+                aux->bola.speedX = SPEED * cos(dir);
+                aux->bola.speedY = SPEED * sin(dir);
+                // aux->bola.posY -= 20;
+            }
+            aux = aux->proximo;
         }
-        aux = aux->proximo;
     }
 }

@@ -14,7 +14,7 @@
 #include "Bolas.h"
 #include "libScore.h"
 
-#define QNT_BLOCOS 8
+#define QNT_BLOCOS 9
 #define HEIGHT_LANCAMENTO 800
 #define RAIO 8
 
@@ -79,7 +79,7 @@ bool insereFinalDaListaBlocos(ListaBlocos *lista, Blocos bloco) {
 
 void preencheLinhaBlocos(ListaBlocos *lista, int *score) {
     (*score)++;
-    int probGerarBloco, qntDeVida, incrementoWidth = 99;
+    int probGerarBloco, qntDeVida, incrementoWidth = 88;
     Blocos bloco;
     int posicaoItem = numAleatorio(0, QNT_BLOCOS - 1);
 
@@ -95,10 +95,10 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *score) {
         }
 
         if (i == posicaoItem || probGerarBloco <= 50) {
-            bloco.posX1 = 13 + incrementoWidth * i;
+            bloco.posX1 = 5 + incrementoWidth * i;
             bloco.posY1 = 160;
-            bloco.posX2 = 93 + incrementoWidth * i;
-            bloco.posY2 = 240;
+            bloco.posX2 = 89 + incrementoWidth * i;
+            bloco.posY2 = 244;
             bloco.linhaDoBloco = (*score);
             bloco.descerItem = false;
             bloco.blinkItem = 0;
@@ -129,20 +129,20 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
                 color = al_map_rgb(255, 15, 142);
             }
             al_draw_filled_rectangle(aux->bloco.posX1, aux->bloco.posY1, aux->bloco.posX2, aux->bloco.posY2, color);
-            al_draw_textf(fonts, al_map_rgb(0, 0, 0), aux->bloco.posX1 + 40, aux->bloco.posY1 + 30, ALLEGRO_ALIGN_CENTRE, "%d",
+            al_draw_textf(fonts, al_map_rgb(0, 0, 0), aux->bloco.posX1 + 42, aux->bloco.posY1 + 30, ALLEGRO_ALIGN_CENTRE, "%d",
                           aux->bloco.vidas);
         }
 
         if ((aux->bloco.vidas > 0) && (aux->bloco.item == true) && (aux->bloco.descerItem == false)) {
             if (aux->bloco.blinkItem <= 30) {
-                al_draw_circle(aux->bloco.posX1 + 45, aux->bloco.posY1 + 45, 15, al_map_rgb(255, 255, 255), 3);
-                al_draw_filled_circle(aux->bloco.posX1 + 45, aux->bloco.posY1 + 45, 10, al_map_rgb(255, 255, 255));
+                al_draw_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 15, al_map_rgb(255, 255, 255), 3);
+                al_draw_filled_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 10, al_map_rgb(255, 255, 255));
                 aux->bloco.blinkItem++;
             }
 
             if (aux->bloco.blinkItem > 30 && aux->bloco.blinkItem <= 60) {
-                al_draw_circle(aux->bloco.posX1 + 45, aux->bloco.posY1 + 45, 20, al_map_rgb(255, 255, 255), 3);
-                al_draw_filled_circle(aux->bloco.posX1 + 45, aux->bloco.posY1 + 45, 10, al_map_rgb(255, 255, 255));
+                al_draw_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 20, al_map_rgb(255, 255, 255), 3);
+                al_draw_filled_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 10, al_map_rgb(255, 255, 255));
                 aux->bloco.blinkItem++;
                 if (aux->bloco.blinkItem == 60) aux->bloco.blinkItem = 0;
             }
@@ -152,13 +152,16 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
     }
 }
 
-void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score, int *estadoAtual) {
+void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score, int *estadoAtual, ALLEGRO_SAMPLE *pontoScore,
+                  ALLEGRO_SAMPLE *gameoverSound) {
     bool acabou = false;
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL) {
         if (aux->bloco.descerItem == true) {
             if (aux->bloco.posY1 + RAIO < HEIGHT_LANCAMENTO)
-                aux->bloco.posY1 += 8;
+                aux->bloco.posY1 += 10;
+            else if (aux->bloco.posY1 + RAIO > HEIGHT_LANCAMENTO)
+                aux->bloco.posY1 -= 3;
             else if ((*atirouBola) == false)
                 aux->bloco.descerItem = false;
         }
@@ -169,18 +172,22 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
         aux = lista->ponteiroInicio;
         for (int i = 1; i <= (*score) && acabou == false; i++) {
             while ((aux != NULL) && (aux->bloco.linhaDoBloco == i)) {
-                aux->bloco.posY1 += 90;
-                aux->bloco.posY2 += 90;
+                aux->bloco.posY1 += 88;
+                aux->bloco.posY2 += 88;
                 if (aux->bloco.posY2 >= HEIGHT_LANCAMENTO - 80 && aux->bloco.vidas > 0) {
                     *estadoAtual = 3;
                     salvaScore(*score);
                     acabou = true;
+                    al_play_sample(gameoverSound, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                     break;
                 }
                 aux = aux->proximo;
             }
         }
-        if (acabou == false) preencheLinhaBlocos(lista, score);
+        if (acabou == false) {
+            al_play_sample(pontoScore, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
+            preencheLinhaBlocos(lista, score);
+        }
         (*descerBlocos) = false;
     }
 }

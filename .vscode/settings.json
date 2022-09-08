@@ -4,6 +4,7 @@
       "cmath": "c",
       "allegro_acodec.h": "c",
       "allegro_audio.h": "c",
-      "allegro_font.h": "c"
+      "allegro_font.h": "c",
+      "stdlib.h": "c"
    }
 }
