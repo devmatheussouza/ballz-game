@@ -21,26 +21,14 @@
 // Estados
 enum STATES { MENU = 1, PLAYING, GAMEOVER, SCORES, PAUSE, HACK };
 
-// Prototipos das funcoes
+// Prototipo funcao
 void must_init(bool test, const char *description);
 
 // Inicio MAIN
 int main() {
     srand(time(NULL));
 
-    bool redraw = true, fimDoGame = false;
-    bool tocandoMusicaMenu = true, clickDesativarMusicaMenu = false;
-    bool atirouBola = false, clickPlay = false, descerBloco = false, atualizarScore = true, arqExiste;
-    bool atualizacaoScoreGameOver = true;
-    int contadorEasterEgg = 0;
-    double mouseX, mouseY;
-    int estadoAtual = MENU, scoreAtual = 0;
-    int qntBolasAdicionadas = 0, qntBolasMortas = 0;
-    int qntScores = 0, limite = 0;
-    Score *scores;
-    arqExiste = verificaExistenciaArquivo();
-
-    // Allegro variables
+    // Variaveis e inicializacoes Allegro
     must_init(al_init(), "Allegro");
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
@@ -48,14 +36,6 @@ int main() {
     ALLEGRO_DISPLAY *display = al_create_display(RES_WIDTH, RES_HEIGHT);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
-    ALLEGRO_FONT *font28 = NULL, *font32 = NULL, *font40 = NULL;
-    ALLEGRO_FONT *font60 = NULL, *font80 = NULL, *font140 = NULL;
-    ALLEGRO_BITMAP *audioLigado = NULL;
-    ALLEGRO_BITMAP *audioDesligado = NULL;
-    ALLEGRO_BITMAP *score = NULL;
-    ALLEGRO_BITMAP *hacker = NULL;
-
-    // Inicialization
     must_init(display, "Display");
     must_init(event_queue, "Event queue");
     must_init(timer, "Timer");
@@ -66,10 +46,20 @@ int main() {
     must_init(al_install_keyboard(), "Keyboard");
     must_init(al_install_mouse(), "Mouse");
     al_set_window_title(display, "BALLZ");
+
+    ALLEGRO_FONT *font28 = NULL, *font32 = NULL, *font40 = NULL;
+    ALLEGRO_FONT *font60 = NULL, *font80 = NULL, *font140 = NULL;
+    ALLEGRO_BITMAP *audioLigado = NULL, *audioDesligado = NULL;
+    ALLEGRO_BITMAP *score = NULL;
+    ALLEGRO_BITMAP *hacker = NULL;
+
+    // Images
     audioLigado = al_load_bitmap("./images/audioLigado.jpg");
     audioDesligado = al_load_bitmap("./images/audioDesligado.jpg");
     score = al_load_bitmap("./images/score.jpg");
     hacker = al_load_bitmap("./images/hacker.jpg");
+
+    // Fonts
     font28 = al_load_font("./fonts/creHappiness.ttf", 28, 0);
     font32 = al_load_font("./fonts/creHappiness.ttf", 32, 0);
     font40 = al_load_font("./fonts/creHappiness.ttf", 40, 0);
@@ -82,35 +72,43 @@ int main() {
     must_init(font60, "Font 60");
     must_init(font80, "Font 80");
     must_init(font140, "Font 140");
+
+    // Audios
     must_init(al_install_audio(), "audio");
     must_init(al_init_acodec_addon(), "audio codecs");
     must_init(al_reserve_samples(10), "reserve samples");
-
     ALLEGRO_SAMPLE *menuSong = al_load_sample("./audio/menuSong.wav");
     ALLEGRO_SAMPLE_INSTANCE *instMenuSong = al_create_sample_instance(menuSong);
     al_attach_sample_instance_to_mixer(instMenuSong, al_get_default_mixer());
-
     ALLEGRO_SAMPLE *hackerSong = al_load_sample("./audio/hackerSong.wav");
     ALLEGRO_SAMPLE_INSTANCE *instHackerSong = al_create_sample_instance(hackerSong);
     al_attach_sample_instance_to_mixer(instHackerSong, al_get_default_mixer());
-
     ALLEGRO_SAMPLE *hitBola = al_load_sample("./audio/hitBola.wav");
     ALLEGRO_SAMPLE *pontoScore = al_load_sample("./audio/pontoScore.wav");
     ALLEGRO_SAMPLE *gameoverSound = al_load_sample("./audio/gameover.wav");
-    // al_attach_sample_instance_to_mixer(instHitBola, al_get_default_mixer());
-
     must_init(menuSong, "MenuSong");
     must_init(hackerSong, "HackerSong");
     must_init(hitBola, "HitBola");
     must_init(pontoScore, "PontoScore");
     must_init(gameoverSound, "gameoverSound");
 
+    // Variaveis locais
+    bool redraw = true, fimDoGame = false;
+    bool tocandoMusicaMenu = true, clickDesativarMusicaMenu = false;
+    bool atirouBola = false, clickPlay = false, descerBloco = false, atualizarScore = true, arqExiste;
+    bool atualizacaoScoreGameOver = true;
+    int contadorEasterEgg = 0;
+    double mouseX, mouseY;
+    int estadoAtual = MENU, scoreAtual = 0, qntBolasAdicionadas = 0, qntBolasMortas = 0;
+    int qntScores = 0, limite = 0;
+    Score *scores;
+    arqExiste = verificaExistenciaArquivo();
+
+    // Inicializacao bolas, blocos e mira
     ListaBolas *listaBolas = criaListaBolas();
     insereFinalDaListaBolas(listaBolas);
-
     ListaBlocos *listaBlocos = criaListaBlocos();
     preencheLinhaBlocos(listaBlocos, &scoreAtual);
-
     ListaBolas *listaBolasMira = criaListaBolas();
     for (int i = 0; i < 10; i++) insereFinalDaListaBolas(listaBolasMira);
 
@@ -122,7 +120,7 @@ int main() {
             limite = 10;
     }
 
-    // Register event source;
+    // Events source
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -131,7 +129,7 @@ int main() {
     unsigned char key[ALLEGRO_KEY_MAX];
     memset(key, 0, sizeof(key));
 
-    // Start timer;
+    // Timer
     al_start_timer(timer);
 
     al_set_sample_instance_playmode(instMenuSong, ALLEGRO_PLAYMODE_LOOP);
@@ -141,6 +139,7 @@ int main() {
     al_set_sample_instance_playmode(instHackerSong, ALLEGRO_PLAYMODE_LOOP);
     al_set_sample_instance_gain(instHackerSong, 1);
 
+    // Loop principal
     while (!fimDoGame) {
         ALLEGRO_EVENT ev;
         al_wait_for_event(event_queue, &ev);
@@ -160,6 +159,7 @@ int main() {
                 break;
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+                // click para atirar bolas
                 if ((ev.mouse.button & 1) && (estadoAtual == PLAYING) && (atirouBola == false) && (clickPlay == true) &&
                     (mouseY < HEIGHT_LANCAMENTO - 2 * 10)) {
                     atirouBola = true;
@@ -168,6 +168,7 @@ int main() {
                     descerBloco = true;
                 }
 
+                // click comecar jogo
                 if (((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 450) && (mouseY <= 520) &&
                      (estadoAtual == MENU)) ||
                     ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 460) && (mouseY <= 530) &&
@@ -373,12 +374,11 @@ int main() {
                 break;
         }
 
+        // bloco voltado para reproduzir display/imagens
         if (redraw && al_is_event_queue_empty(event_queue)) {
             redraw = false;
-
             switch (estadoAtual) {
                 case MENU:
-                    // al_draw_textf(font32, al_map_rgb(255, 255, 255), 20, 20, 0, "Pos x: %.2f Pos y: %.2f", mouseX, mouseY);
                     al_draw_text(font140, al_map_rgba(235, 34, 95, 255), 272, 150, 0, "B");
                     al_draw_text(font140, al_map_rgba(249, 181, 49, 255), 343, 149, 0, "a");
                     al_draw_text(font140, al_map_rgba(22, 114, 190, 255), 414, 151, 0, "l");
@@ -490,9 +490,7 @@ int main() {
     }
 
     if (listaBolas != NULL) liberaListaBolas(listaBolas);
-
     if (listaBlocos != NULL) liberaListaBlocos(listaBlocos);
-
     liberaListaBolas(listaBolasMira);
     free(scores);
 

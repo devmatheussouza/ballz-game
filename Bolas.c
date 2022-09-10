@@ -93,6 +93,7 @@ Bola criaBola() {
     return novaBola;
 }
 
+// Faz o display das bolas
 void drawBolas(ListaBolas *lista) {
     ElementoDaLista *aux = lista->ponteiroInicio;
     while (aux != NULL) {
@@ -101,6 +102,7 @@ void drawBolas(ListaBolas *lista) {
     }
 }
 
+// Faz o display da mira
 void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xReferencia) {
     double yDist = (HEIGHT_LANCAMENTO - yMouse - RAIO) / 10;
     double xDist = (xMouse - xReferencia) / 10;
@@ -155,6 +157,7 @@ void updateBolas(ListaBolas *lista) {
     }
 }
 
+// Verifica colisao entre bolas e blocos e entre bolas e paredes
 void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBlocos, int *qntBolasAdicionadas, int *qntBolasMortas,
                   ALLEGRO_SAMPLE *hitBola) {
     ElementoDaListaBloco *auxBloco = listaBlocos->ponteiroInicio;
@@ -162,11 +165,12 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
 
     while (aux != NULL && ((*atirouBola) == true)) {
         if (aux->bola.viva == true) {
+            // Verificacao da colisao entre bola e parede
             if ((aux->bola.posX > RES_WIDTH - SPEED && aux->bola.speedX > 0) || (aux->bola.posX < SPEED && aux->bola.speedX < 0))
                 aux->bola.speedX *= -1;
-
             if ((aux->bola.posY < 160 + RAIO && aux->bola.speedY < 0)) aux->bola.speedY *= -1;
 
+            // Parte de verificacao da colisao entre bola e bloco
             while (auxBloco != NULL) {
                 if (auxBloco->bloco.vidas > 0) {
                     if ((aux->bola.posX >= auxBloco->bloco.posX1 - SPEED && aux->bola.posX <= auxBloco->bloco.posX2 + SPEED) &&
@@ -224,6 +228,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                 auxBloco = auxBloco->proximo;
             }
 
+            // Se a bola chegou na parede inferior (fim da parte jogavel)
             if ((aux->bola.posY > HEIGHT_LANCAMENTO)) {
                 if (primeiraBolaMorta == false) {
                     posX_Ref = aux->bola.posX;
@@ -237,6 +242,7 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                 aux->bola.viva = false;
                 (*qntBolasMortas)++;
 
+                // Se todas as bolas chegaram na parte inferior
                 if ((*qntBolasMortas) == (tamanhoDaListaBolas(listaBolas))) {
                     if ((*qntBolasAdicionadas) > 0)
                         for (int i = 0; i < (*qntBolasAdicionadas); i++) insereFinalDaListaBolas(listaBolas);

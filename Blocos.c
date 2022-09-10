@@ -18,8 +18,7 @@
 #define HEIGHT_LANCAMENTO 800
 #define RAIO 8
 
-int desenhoItem = 0;
-
+// Funcao para gerar numeros aleatorios
 int numAleatorio(int n, int m) { return (rand() % (m - n + 1)) + n; }
 
 ListaBlocos *criaListaBlocos() {
@@ -77,6 +76,7 @@ bool insereFinalDaListaBlocos(ListaBlocos *lista, Blocos bloco) {
     return true;
 }
 
+// Funcao para preencher uma nova linha de blocos
 void preencheLinhaBlocos(ListaBlocos *lista, int *score) {
     (*score)++;
     int probGerarBloco, qntDeVida, incrementoWidth = 88;
@@ -107,15 +107,18 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *score) {
     }
 }
 
+// Funcao de controle do display dos blocos
 void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
     ALLEGRO_COLOR color;
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL) {
+        // Bolinha verde
         if (aux->bloco.descerItem == true) {
             al_draw_filled_circle(aux->bloco.posX1 + 45, aux->bloco.posY1, 8, al_map_rgb(0, 200, 0));
             al_draw_text(fonts, al_map_rgb(255, 255, 255), aux->bloco.posX1 + 60, aux->bloco.posY1 - 30, 8, "+1");
         }
 
+        // Controle da cor do bloco de acordo com a vida
         if ((aux->bloco.vidas > 0) && (aux->bloco.item == false)) {
             if (aux->bloco.vidas <= 5) {
                 color = al_map_rgb(255, 182, 0);
@@ -133,6 +136,7 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
                           aux->bloco.vidas);
         }
 
+        // Display dos itens
         if ((aux->bloco.vidas > 0) && (aux->bloco.item == true) && (aux->bloco.descerItem == false)) {
             if (aux->bloco.blinkItem <= 30) {
                 al_draw_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 15, al_map_rgb(255, 255, 255), 3);
@@ -152,11 +156,13 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
     }
 }
 
+// Funcao que controla a movimentacao dos blocos e dos itens
 void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int *score, int *estadoAtual, ALLEGRO_SAMPLE *pontoScore,
                   ALLEGRO_SAMPLE *gameoverSound) {
     bool acabou = false;
     ElementoDaListaBloco *aux = lista->ponteiroInicio;
     while (aux != NULL) {
+        // Controle da descida da bolinha verde
         if (aux->bloco.descerItem == true) {
             if (aux->bloco.posY1 + RAIO < HEIGHT_LANCAMENTO)
                 aux->bloco.posY1 += 10;
@@ -168,6 +174,7 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
         aux = aux->proximo;
     }
 
+    // Descida de linhas de bloco
     if (((*descerBlocos) == true) && ((*atirouBola) == false)) {
         aux = lista->ponteiroInicio;
         for (int i = 1; i <= (*score) && acabou == false; i++) {

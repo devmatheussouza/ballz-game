@@ -8,7 +8,7 @@ typedef struct {
     double posY;
     double speedX;
     double speedY;
-    bool bolaReferencia;  // primeira bola a chegar no final da tela;
+    bool bolaReferencia;
     bool shooted;
 } Bola;
 
@@ -23,12 +23,12 @@ typedef struct {
     ElementoDaLista *ponteiroInicio;
 } ListaBolas;
 
+Bola criaBola();
 ListaBolas *criaListaBolas();
 void liberaListaBolas(ListaBolas *lista);
 int tamanhoDaListaBolas(ListaBolas *lista);
 bool listaVaziaBolas(ListaBolas *lista);
 bool insereFinalDaListaBolas(ListaBolas *lista);
-Bola criaBola();
 void drawBolas(ListaBolas *lista);
 void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xReferencia);
 void updateBolas(ListaBolas *lista);
