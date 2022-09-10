@@ -116,7 +116,7 @@ void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xRefe
 
     ElementoDaLista *aux = lista->ponteiroInicio;
     while (aux != NULL) {
-        if (yMouse < HEIGHT_LANCAMENTO) {
+        if (yMouse <= HEIGHT_LANCAMENTO - 2 * SPEED) {
             if (aux->anterior == NULL) {
                 aux->bola.posX = xReferencia + xDist;
                 aux->bola.posY = HEIGHT_LANCAMENTO - RAIO - yDist;
@@ -264,14 +264,13 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
 void atiraBolas(ListaBolas *lista, double x_mouse, double y_mouse) {
     double dir;
     ElementoDaLista *aux = lista->ponteiroInicio;
-    if (y_mouse < HEIGHT_LANCAMENTO + 2 * SPEED) {
+    if (y_mouse <= HEIGHT_LANCAMENTO - 2 * SPEED) {
         while (aux != NULL) {
             if (aux->bola.viva == false) {
                 aux->bola.viva = true;
                 dir = atan2((y_mouse - aux->bola.posY), (x_mouse - aux->bola.posX));
                 aux->bola.speedX = SPEED * cos(dir);
                 aux->bola.speedY = SPEED * sin(dir);
-                // aux->bola.posY -= 20;
             }
             aux = aux->proximo;
         }

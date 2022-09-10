@@ -161,7 +161,7 @@ int main() {
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 if ((ev.mouse.button & 1) && (estadoAtual == PLAYING) && (atirouBola == false) && (clickPlay == true) &&
-                    (mouseY < HEIGHT_LANCAMENTO + 2 * RAIO)) {
+                    (mouseY < HEIGHT_LANCAMENTO - 2 * 10)) {
                     atirouBola = true;
                     clickPlay = false;
                     atiraBolas(listaBolas, mouseX, mouseY);
