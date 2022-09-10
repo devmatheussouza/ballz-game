@@ -16,7 +16,7 @@
 #define RES_WIDTH 800
 #define RES_HEIGHT 960
 #define RAIO 8
-#define SPEED 10
+#define SPEED 12
 #define HEIGHT_LANCAMENTO 800
 
 int quantidadeBolasMortas = 0;
@@ -142,7 +142,7 @@ void updateBolas(ListaBolas *lista) {
                 aux->bola.posX += aux->bola.speedX;
                 aux->bola.posY += aux->bola.speedY;
             } else {
-                if ((abs(aux->bola.posX - aux->anterior->bola.posX) >= 30 || abs(aux->bola.posY - aux->anterior->bola.posY) >= 30) &&
+                if ((abs(aux->bola.posX - aux->anterior->bola.posX) >= 40 || abs(aux->bola.posY - aux->anterior->bola.posY) >= 40) &&
                     aux->bola.shooted == false)
                     aux->bola.shooted = true;
 

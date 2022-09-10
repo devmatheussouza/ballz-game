@@ -19,7 +19,7 @@
 #define HEIGHT_LANCAMENTO 800
 
 // Estados
-enum STATES { MENU = 1, PLAYING, GAMEOVER, SCORES, PAUSE, HACK };
+enum STATES { MENU = 1, PLAYING, GAMEOVER, SCORES, PAUSE, HACK, AUTOR };
 
 // Prototipo funcao
 void must_init(bool test, const char *description);
@@ -52,12 +52,14 @@ int main() {
     ALLEGRO_BITMAP *audioLigado = NULL, *audioDesligado = NULL;
     ALLEGRO_BITMAP *score = NULL;
     ALLEGRO_BITMAP *hacker = NULL;
+    ALLEGRO_BITMAP *autorState = NULL;
 
     // Images
     audioLigado = al_load_bitmap("./images/audioLigado.jpg");
     audioDesligado = al_load_bitmap("./images/audioDesligado.jpg");
     score = al_load_bitmap("./images/score.jpg");
     hacker = al_load_bitmap("./images/hacker.jpg");
+    autorState = al_load_bitmap("./images/autorState.jpg");
 
     // Fonts
     font28 = al_load_font("./fonts/creHappiness.ttf", 28, 0);
@@ -257,6 +259,8 @@ int main() {
 
                             if (key[ALLEGRO_KEY_Q]) fimDoGame = true;
 
+                            if (key[ALLEGRO_KEY_F1]) estadoAtual = AUTOR;
+
                             if (key[ALLEGRO_KEY_ENTER]) {
                                 qntBolasAdicionadas = 0;
                                 qntBolasMortas = 0;
@@ -363,6 +367,10 @@ int main() {
                                 }
                                 atualizarScore = false;
                             }
+                            if (key[ALLEGRO_KEY_ESCAPE]) estadoAtual = MENU;
+                            break;
+
+                        case AUTOR:
                             if (key[ALLEGRO_KEY_ESCAPE]) estadoAtual = MENU;
                             break;
                     }
@@ -482,6 +490,15 @@ int main() {
                     al_draw_text(font140, al_map_rgba(128, 199, 67, 255), 453, 810, 0, "z");
                     al_draw_filled_rounded_rectangle(250, 550, 550, 620, 35, 35, al_map_rgba(0, 200, 80, 255));
                     al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 568, ALLEGRO_ALIGN_CENTRE, "START GAME");
+                    break;
+
+                case AUTOR:
+                    al_draw_bitmap(autorState, 0, 0, 0);
+                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, 100, ALLEGRO_ALIGN_CENTRE, "Jogo criado");
+                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, 150, ALLEGRO_ALIGN_CENTRE, "com carinho por...");
+                    al_draw_text(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, 400, ALLEGRO_ALIGN_CENTRE, "Matheus Souza");
+                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT - 100, ALLEGRO_ALIGN_CENTRE, "2022");
+                    break;
             }
 
             al_flip_display();
@@ -498,6 +515,7 @@ int main() {
     al_destroy_bitmap(audioDesligado);
     al_destroy_bitmap(score);
     al_destroy_bitmap(hacker);
+    al_destroy_bitmap(autorState);
     al_destroy_sample(menuSong);
     al_destroy_sample_instance(instMenuSong);
     al_destroy_sample(hitBola);

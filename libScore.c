@@ -46,7 +46,6 @@ Score* leituraScores(int* numScores) {
     }
 
     qntScores = quantidadeDeScoresNoArquivo(arqScores);
-    // printf("QNT SCORES: %d\n", qntScores);
     int cont = qntScores - 1;
     fseek(arqScores, 0, SEEK_SET);
 
