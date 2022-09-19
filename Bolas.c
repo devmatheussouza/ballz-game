@@ -22,6 +22,7 @@
 int quantidadeBolasMortas = 0;
 bool primeiraBolaMorta = false, flagTodasMorreram = false;
 double posX_Ref = 0;
+bool colisao = false;
 
 ListaBolas *criaListaBolas() {
     ListaBolas *lista = malloc(sizeof(ListaBolas));
@@ -134,6 +135,7 @@ void drawMiraBolas(ListaBolas *lista, double xMouse, double yMouse, double xRefe
     }
 }
 
+// Atualiza situacao das bolas
 void updateBolas(ListaBolas *lista) {
     ElementoDaLista *aux = lista->ponteiroInicio;
     while (aux != NULL) {
@@ -177,54 +179,68 @@ void colisaoBolas(ListaBolas *listaBolas, bool *atirouBola, ListaBlocos *listaBl
                         ((aux->bola.posY <= auxBloco->bloco.posY1 && aux->bola.posY >= auxBloco->bloco.posY1 - SPEED) &&
                          (aux->bola.speedY > 0))) {
                         al_play_sample(hitBola, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
-                        if (auxBloco->bloco.item == true) {
-                            auxBloco->bloco.descerItem = true;
-                            (*qntBolasAdicionadas)++;
-                        } else {
-                            aux->bola.speedY *= -1;
+                        if (colisao == false) {
+                            colisao = true;
+                            if (auxBloco->bloco.item == true) {
+                                auxBloco->bloco.descerItem = true;
+                                (*qntBolasAdicionadas)++;
+                            } else {
+                                aux->bola.speedY *= -1;
+                            }
+                            if (auxBloco->bloco.vidas >= 1 && colisao) {
+                                auxBloco->bloco.vidas--;
+                            }
                         }
-                        if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
                     }
 
                     if ((aux->bola.posX >= auxBloco->bloco.posX1 - SPEED && aux->bola.posX <= auxBloco->bloco.posX2 + SPEED) &&
                         ((aux->bola.posY >= auxBloco->bloco.posY2 && aux->bola.posY <= auxBloco->bloco.posY2 + SPEED) &&
                          (aux->bola.speedY < 0))) {
                         al_play_sample(hitBola, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
-                        if (auxBloco->bloco.item == true) {
-                            auxBloco->bloco.descerItem = true;
-                            (*qntBolasAdicionadas)++;
-                        } else {
-                            aux->bola.speedY *= -1;
+                        if (colisao == false) {
+                            colisao = true;
+                            if (auxBloco->bloco.item == true) {
+                                auxBloco->bloco.descerItem = true;
+                                (*qntBolasAdicionadas)++;
+                            } else {
+                                aux->bola.speedY *= -1;
+                            }
+                            if (auxBloco->bloco.vidas >= 1 && colisao) auxBloco->bloco.vidas--;
                         }
-                        if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
                     }
 
                     if ((aux->bola.posY >= auxBloco->bloco.posY1 - SPEED && aux->bola.posY <= auxBloco->bloco.posY2 + SPEED) &&
                         (aux->bola.posX >= auxBloco->bloco.posX1 - SPEED && aux->bola.posX <= auxBloco->bloco.posX1) && (aux->bola.speedX > 0)) {
                         al_play_sample(hitBola, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
-                        if (auxBloco->bloco.item == true) {
-                            auxBloco->bloco.descerItem = true;
-                            (*qntBolasAdicionadas)++;
-                        } else {
-                            aux->bola.speedX *= -1;
+                        if (colisao == false) {
+                            colisao = true;
+                            if (auxBloco->bloco.item == true) {
+                                auxBloco->bloco.descerItem = true;
+                                (*qntBolasAdicionadas)++;
+                            } else {
+                                aux->bola.speedX *= -1;
+                            }
+                            if (auxBloco->bloco.vidas >= 1 && colisao) auxBloco->bloco.vidas--;
                         }
-                        if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
                     }
 
                     if ((aux->bola.posY >= auxBloco->bloco.posY1 - SPEED && aux->bola.posY <= auxBloco->bloco.posY2 + SPEED) &&
                         ((aux->bola.posX >= auxBloco->bloco.posX2 && aux->bola.posX <= auxBloco->bloco.posX2 + SPEED) &&
                          (aux->bola.speedX < 0))) {
                         al_play_sample(hitBola, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
-                        if (auxBloco->bloco.item == true) {
-                            auxBloco->bloco.descerItem = true;
-                            (*qntBolasAdicionadas)++;
-                        } else {
-                            aux->bola.speedX *= -1;
+                        if (colisao == false) {
+                            colisao = true;
+                            if (auxBloco->bloco.item == true) {
+                                auxBloco->bloco.descerItem = true;
+                                (*qntBolasAdicionadas)++;
+                            } else {
+                                aux->bola.speedX *= -1;
+                            }
+                            if (auxBloco->bloco.vidas >= 1 && colisao) auxBloco->bloco.vidas--;
                         }
-                        if (auxBloco->bloco.vidas >= 1) auxBloco->bloco.vidas--;
                     }
                 }
-
+                colisao = false;
                 auxBloco = auxBloco->proximo;
             }
 

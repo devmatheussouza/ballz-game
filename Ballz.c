@@ -19,7 +19,7 @@
 #define HEIGHT_LANCAMENTO 800
 
 // Estados
-enum STATES { MENU = 1, PLAYING, GAMEOVER, SCORES, PAUSE, HACK, AUTOR };
+enum STATES { MENU = 1, PLAYING, GAMEOVER, SCORES, PAUSE, HACK, HELP };
 
 // Prototipo funcao
 void must_init(bool test, const char *description);
@@ -52,22 +52,28 @@ int main() {
     ALLEGRO_BITMAP *audioLigado = NULL, *audioDesligado = NULL;
     ALLEGRO_BITMAP *score = NULL;
     ALLEGRO_BITMAP *hacker = NULL;
-    ALLEGRO_BITMAP *autorState = NULL;
+    ALLEGRO_BITMAP *primeiraTela = NULL, *segundaTela = NULL;
+    ALLEGRO_BITMAP *arrowRight = NULL, *arrowLeft = NULL;
+    ALLEGRO_BITMAP *exitHelp = NULL;
 
     // Images
-    audioLigado = al_load_bitmap("./images/audioLigado.jpg");
-    audioDesligado = al_load_bitmap("./images/audioDesligado.jpg");
-    score = al_load_bitmap("./images/score.jpg");
-    hacker = al_load_bitmap("./images/hacker.jpg");
-    autorState = al_load_bitmap("./images/autorState.jpg");
+    audioLigado = al_load_bitmap("./resources/images/audioLigado.jpg");
+    audioDesligado = al_load_bitmap("./resources/images/audioDesligado.jpg");
+    score = al_load_bitmap("./resources/images/score.jpg");
+    hacker = al_load_bitmap("./resources/images/hacker.jpg");
+    primeiraTela = al_load_bitmap("./resources/images/primeiraTela.jpeg");
+    segundaTela = al_load_bitmap("./resources/images/segundaTela.jpg");
+    arrowRight = al_load_bitmap("./resources/images/arrowRight.jpg");
+    arrowLeft = al_load_bitmap("./resources/images/arrowLeft.jpg");
+    exitHelp = al_load_bitmap("./resources/images/exitHelp.jpg");
 
     // Fonts
-    font28 = al_load_font("./fonts/creHappiness.ttf", 28, 0);
-    font32 = al_load_font("./fonts/creHappiness.ttf", 32, 0);
-    font40 = al_load_font("./fonts/creHappiness.ttf", 40, 0);
-    font60 = al_load_font("./fonts/creHappiness.ttf", 60, 0);
-    font80 = al_load_font("./fonts/creHappiness.ttf", 80, 0);
-    font140 = al_load_font("./fonts/creHappiness.ttf", 140, 0);
+    font28 = al_load_font("./resources/fonts/creHappiness.ttf", 28, 0);
+    font32 = al_load_font("./resources/fonts/creHappiness.ttf", 32, 0);
+    font40 = al_load_font("./resources/fonts/creHappiness.ttf", 40, 0);
+    font60 = al_load_font("./resources/fonts/creHappiness.ttf", 60, 0);
+    font80 = al_load_font("./resources/fonts/creHappiness.ttf", 80, 0);
+    font140 = al_load_font("./resources/fonts/creHappiness.ttf", 140, 0);
     must_init(font28, "Font 20");
     must_init(font32, "Font 32");
     must_init(font40, "Font 40");
@@ -79,15 +85,15 @@ int main() {
     must_init(al_install_audio(), "audio");
     must_init(al_init_acodec_addon(), "audio codecs");
     must_init(al_reserve_samples(10), "reserve samples");
-    ALLEGRO_SAMPLE *menuSong = al_load_sample("./audio/menuSong.wav");
+    ALLEGRO_SAMPLE *menuSong = al_load_sample("./resources/audio/menuSong.wav");
     ALLEGRO_SAMPLE_INSTANCE *instMenuSong = al_create_sample_instance(menuSong);
     al_attach_sample_instance_to_mixer(instMenuSong, al_get_default_mixer());
-    ALLEGRO_SAMPLE *hackerSong = al_load_sample("./audio/hackerSong.wav");
+    ALLEGRO_SAMPLE *hackerSong = al_load_sample("./resources/audio/hackerSong.wav");
     ALLEGRO_SAMPLE_INSTANCE *instHackerSong = al_create_sample_instance(hackerSong);
     al_attach_sample_instance_to_mixer(instHackerSong, al_get_default_mixer());
-    ALLEGRO_SAMPLE *hitBola = al_load_sample("./audio/hitBola.wav");
-    ALLEGRO_SAMPLE *pontoScore = al_load_sample("./audio/pontoScore.wav");
-    ALLEGRO_SAMPLE *gameoverSound = al_load_sample("./audio/gameover.wav");
+    ALLEGRO_SAMPLE *hitBola = al_load_sample("./resources/audio/hitBola.wav");
+    ALLEGRO_SAMPLE *pontoScore = al_load_sample("./resources/audio/pontoScore.wav");
+    ALLEGRO_SAMPLE *gameoverSound = al_load_sample("./resources/audio/gameover.wav");
     must_init(menuSong, "MenuSong");
     must_init(hackerSong, "HackerSong");
     must_init(hitBola, "HitBola");
@@ -105,6 +111,7 @@ int main() {
     int qntScores = 0, limite = 0;
     Score *scores;
     arqExiste = verificaExistenciaArquivo();
+    bool primeiraTelaAjuda = false, segundaTelaAjuda = false;
 
     // Inicializacao bolas, blocos e mira
     ListaBolas *listaBolas = criaListaBolas();
@@ -209,6 +216,7 @@ int main() {
                     estadoAtual = PLAYING;
                 }
 
+                // clicks baloes ou setas
                 if ((ev.mouse.button & 1) && (mouseX >= 470) && (mouseX <= 570) && (mouseY >= 640) && (mouseY <= 750) && (estadoAtual == MENU))
                     estadoAtual = SCORES;
 
@@ -237,6 +245,19 @@ int main() {
 
                 if ((ev.mouse.button & 1) && (mouseX >= 255) && (mouseX <= 545) && (mouseY >= 780) && (mouseY <= 840) && (estadoAtual == SCORES))
                     estadoAtual = MENU;
+
+                if ((ev.mouse.button & 1) && (mouseX >= 30) && (mouseX <= 60) && (mouseY >= 50) && (mouseY <= 120) && (estadoAtual == HELP))
+                    estadoAtual = MENU;
+
+                if ((ev.mouse.button & 1) && (mouseX >= 700) && (mouseX <= 780) && (mouseY >= 450) && (mouseY <= 580) && (estadoAtual == HELP)) {
+                    primeiraTelaAjuda = false;
+                    segundaTelaAjuda = true;
+                }
+                if ((ev.mouse.button & 1) && (mouseX >= 30) && (mouseX <= 110) && (mouseY >= 450) && (mouseY <= 580) && (estadoAtual == HELP)) {
+                    segundaTelaAjuda = false;
+                    primeiraTelaAjuda = true;
+                }
+
                 break;
 
             case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -259,27 +280,10 @@ int main() {
 
                             if (key[ALLEGRO_KEY_Q]) fimDoGame = true;
 
-                            if (key[ALLEGRO_KEY_F1]) estadoAtual = AUTOR;
-
-                            if (key[ALLEGRO_KEY_ENTER]) {
-                                qntBolasAdicionadas = 0;
-                                qntBolasMortas = 0;
-                                scoreAtual = 0;
-                                if (listaBolas != NULL) {
-                                    liberaListaBolas(listaBolas);
-                                    listaBolas = criaListaBolas();
-                                    insereFinalDaListaBolas(listaBolas);
-                                }
-
-                                if (listaBlocos != NULL) {
-                                    liberaListaBlocos(listaBlocos);
-                                    listaBlocos = criaListaBlocos();
-                                    preencheLinhaBlocos(listaBlocos, &scoreAtual);
-                                }
-                                descerBloco = false;
-                                atirouBola = false;
-                                clickPlay = true;
-                                estadoAtual = PLAYING;
+                            if (key[ALLEGRO_KEY_F1] || key[ALLEGRO_KEY_H]) {
+                                primeiraTelaAjuda = true;
+                                segundaTelaAjuda = false;
+                                estadoAtual = HELP;
                             }
 
                             if (key[ALLEGRO_KEY_UP]) contadorEasterEgg = 1;
@@ -370,8 +374,17 @@ int main() {
                             if (key[ALLEGRO_KEY_ESCAPE]) estadoAtual = MENU;
                             break;
 
-                        case AUTOR:
+                        case HELP:
                             if (key[ALLEGRO_KEY_ESCAPE]) estadoAtual = MENU;
+                            if (key[ALLEGRO_KEY_LEFT]) {
+                                segundaTelaAjuda = false;
+                                primeiraTelaAjuda = true;
+                            }
+
+                            if (key[ALLEGRO_KEY_RIGHT]) {
+                                primeiraTelaAjuda = false;
+                                segundaTelaAjuda = true;
+                            }
                             break;
                     }
                 }
@@ -492,12 +505,18 @@ int main() {
                     al_draw_text(font40, al_map_rgba(255, 255, 255, 255), 400, 568, ALLEGRO_ALIGN_CENTRE, "START GAME");
                     break;
 
-                case AUTOR:
-                    al_draw_bitmap(autorState, 0, 0, 0);
-                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, 100, ALLEGRO_ALIGN_CENTRE, "Jogo criado");
-                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, 150, ALLEGRO_ALIGN_CENTRE, "com carinho por...");
-                    al_draw_text(font80, al_map_rgb(255, 255, 255), RES_WIDTH / 2, 400, ALLEGRO_ALIGN_CENTRE, "Matheus Souza");
-                    al_draw_text(font60, al_map_rgb(255, 255, 255), RES_WIDTH / 2, RES_HEIGHT - 100, ALLEGRO_ALIGN_CENTRE, "2022");
+                case HELP:
+                    if (primeiraTelaAjuda) {
+                        al_draw_bitmap(primeiraTela, 40, -4, 0);
+                        al_draw_bitmap(arrowRight, 700, RES_HEIGHT / 2 - 30, 0);
+                        al_draw_bitmap(exitHelp, 30, 50, 0);
+                    }
+
+                    if (segundaTelaAjuda) {
+                        al_draw_bitmap(segundaTela, 40, 0, 0);
+                        al_draw_bitmap(arrowLeft, 40, RES_HEIGHT / 2 - 30, 0);
+                        al_draw_bitmap(exitHelp, 30, 50, 0);
+                    }
                     break;
             }
 
@@ -515,7 +534,12 @@ int main() {
     al_destroy_bitmap(audioDesligado);
     al_destroy_bitmap(score);
     al_destroy_bitmap(hacker);
-    al_destroy_bitmap(autorState);
+    al_destroy_bitmap(primeiraTela);
+    al_destroy_bitmap(segundaTela);
+    al_destroy_bitmap(arrowRight);
+    al_destroy_bitmap(arrowLeft);
+    al_destroy_bitmap(exitHelp);
+
     al_destroy_sample(menuSong);
     al_destroy_sample_instance(instMenuSong);
     al_destroy_sample(hitBola);
@@ -523,12 +547,14 @@ int main() {
     al_destroy_sample(gameoverSound);
     al_destroy_sample(hackerSong);
     al_destroy_sample_instance(instHackerSong);
+
     al_destroy_font(font28);
     al_destroy_font(font32);
     al_destroy_font(font40);
     al_destroy_font(font60);
     al_destroy_font(font80);
     al_destroy_font(font140);
+
     al_destroy_event_queue(event_queue);
     al_destroy_timer(timer);
     al_destroy_display(display);

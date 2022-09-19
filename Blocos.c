@@ -95,10 +95,17 @@ void preencheLinhaBlocos(ListaBlocos *lista, int *score) {
         }
 
         if (i == posicaoItem || probGerarBloco <= 50) {
-            bloco.posX1 = 5 + incrementoWidth * i;
-            bloco.posY1 = 160;
-            bloco.posX2 = 89 + incrementoWidth * i;
-            bloco.posY2 = 244;
+            if (bloco.item == true) {
+                bloco.posX1 = 35 + incrementoWidth * i;
+                bloco.posY1 = 180;
+                bloco.posX2 = 69 + incrementoWidth * i;
+                bloco.posY2 = 224;
+            } else {
+                bloco.posX1 = 5 + incrementoWidth * i;
+                bloco.posY1 = 160;
+                bloco.posX2 = 89 + incrementoWidth * i;
+                bloco.posY2 = 244;
+            }
             bloco.linhaDoBloco = (*score);
             bloco.descerItem = false;
             bloco.blinkItem = 0;
@@ -138,15 +145,17 @@ void drawBlocos(ListaBlocos *lista, ALLEGRO_FONT *fonts) {
 
         // Display dos itens
         if ((aux->bloco.vidas > 0) && (aux->bloco.item == true) && (aux->bloco.descerItem == false)) {
+            // al_draw_filled_rectangle(aux->bloco.posX1, aux->bloco.posY1, aux->bloco.posX2, aux->bloco.posY2, al_map_rgb(255, 0, 255));
+
             if (aux->bloco.blinkItem <= 30) {
-                al_draw_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 15, al_map_rgb(255, 255, 255), 3);
-                al_draw_filled_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 10, al_map_rgb(255, 255, 255));
+                al_draw_circle(aux->bloco.posX1 + 15, aux->bloco.posY1 + 22, 15, al_map_rgb(255, 255, 255), 3);
+                al_draw_filled_circle(aux->bloco.posX1 + 15, aux->bloco.posY1 + 22, 10, al_map_rgb(255, 255, 255));
                 aux->bloco.blinkItem++;
             }
 
             if (aux->bloco.blinkItem > 30 && aux->bloco.blinkItem <= 60) {
-                al_draw_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 20, al_map_rgb(255, 255, 255), 3);
-                al_draw_filled_circle(aux->bloco.posX1 + 44, aux->bloco.posY1 + 44, 10, al_map_rgb(255, 255, 255));
+                al_draw_circle(aux->bloco.posX1 + 15, aux->bloco.posY1 + 22, 20, al_map_rgb(255, 255, 255), 3);
+                al_draw_filled_circle(aux->bloco.posX1 + 15, aux->bloco.posY1 + 22, 10, al_map_rgb(255, 255, 255));
                 aux->bloco.blinkItem++;
                 if (aux->bloco.blinkItem == 60) aux->bloco.blinkItem = 0;
             }
@@ -165,9 +174,9 @@ void updateBlocos(ListaBlocos *lista, bool *descerBlocos, bool *atirouBola, int 
         // Controle da descida da bolinha verde
         if (aux->bloco.descerItem == true) {
             if (aux->bloco.posY1 + RAIO < HEIGHT_LANCAMENTO)
-                aux->bloco.posY1 += 10;
+                aux->bloco.posY1 += 12;
             else if (aux->bloco.posY1 + RAIO > HEIGHT_LANCAMENTO)
-                aux->bloco.posY1 -= 3;
+                aux->bloco.posY1 -= 1;
             else if ((*atirouBola) == false)
                 aux->bloco.descerItem = false;
         }
